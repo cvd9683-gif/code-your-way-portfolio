@@ -1,0 +1,237 @@
+/* ----------------------------------------
+   Design Tokens (CSS Custom Properties)
+   Define once, use everywhere.
+   Change a value here and it updates the
+   whole site.
+---------------------------------------- */
+
+:root {
+  /* Colors */
+  --color-bg:      #0d0d0d;
+  --color-surface: #1a1a1a;
+  --color-border:  #2e2e2e;
+  --color-text:    #f0f0f0;
+  --color-muted:   #888;
+  --color-faint:   #444;
+
+  /* Typography */
+  --font-mono:    'Courier New', Courier, monospace;
+  --text-xs:      0.7rem;
+  --text-sm:      0.85rem;
+  --text-base:    1rem;
+  --text-display: clamp(2.5rem, 8vw, 5.5rem);
+
+  /* Spacing */
+  --space-sm: 0.5rem;
+  --space-md: 1.5rem;
+  --space-lg: 3rem;
+  --space-xl: 5rem;
+
+  /* Layout */
+  --max-width: 860px;
+}
+
+/* ----------------------------------------
+   Base Reset
+---------------------------------------- */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-mono);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: var(--space-md) 1rem;
+
+  /* Flexbox: centers .page-frame horizontally */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  opacity: 0.6;
+}
+
+/* ----------------------------------------
+   Page Frame
+---------------------------------------- */
+
+.page-frame {
+  width: 100%;
+  max-width: var(--max-width);
+  border: 1px solid var(--color-border);
+  padding: var(--space-md);
+}
+
+/* ----------------------------------------
+   Header & Nav
+
+   Flexbox use: header is a flex container.
+   justify-content: flex-end pushes the nav
+   to the right edge.
+   flex-wrap on the ul lets links wrap
+   instead of overflowing on small screens.
+---------------------------------------- */
+
+header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-xl);
+}
+
+nav ul {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+nav ul a {
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nav-contact {
+  border: 1px dashed var(--color-text);
+  padding: 0.3rem 0.7rem;
+}
+
+/* ----------------------------------------
+   Hero
+---------------------------------------- */
+
+#hero {
+  margin-bottom: var(--space-xl);
+}
+
+#hero h1 {
+  font-size: var(--text-display);
+  font-weight: normal;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 1.25rem;
+}
+
+.hero-subtitle {
+  font-size: var(--text-sm);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  max-width: 520px;
+  line-height: 1.8;
+}
+
+.hero-subtitle sup {
+  font-size: 0.6rem;
+  letter-spacing: 0;
+  color: var(--color-faint);
+}
+
+/* ----------------------------------------
+   Work
+
+   Grid use: .work-grid is a grid container.
+   grid-template-columns: 1fr 1fr creates
+   two equal columns. Each 1fr takes up
+   one fraction of the available space.
+
+   Flexbox use: each article is a flex
+   container in column direction, so the
+   image, tags, and title stack vertically
+   with consistent spacing between them.
+---------------------------------------- */
+
+#work {
+  margin-bottom: var(--space-lg);
+}
+
+#work h2 {
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: normal;
+  margin-bottom: var(--space-md);
+}
+
+.work-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.work-grid article {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.project-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.project-tags {
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+.work-grid h3 {
+  font-size: var(--text-sm);
+  font-weight: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+/* ----------------------------------------
+   Responsive — Mobile
+   At 600px and below:
+   - Reduce padding inside the page frame
+   - Collapse the 2-column grid to 1 column
+   - Reduce vertical spacing between sections
+---------------------------------------- */
+
+@media (max-width: 600px) {
+  .page-frame {
+    padding: 1rem;
+  }
+
+  header {
+    margin-bottom: var(--space-lg);
+  }
+
+  #hero {
+    margin-bottom: var(--space-lg);
+  }
+
+  .work-grid {
+    grid-template-columns: 1fr;
+  }
+}
