@@ -1,115 +1,389 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Trader Goe’s — Cathy Doss</title>
-    <link rel="stylesheet" href="../style.css" />
-  </head>
-  <body>
-    <div class="plus-grid" aria-hidden="true" id="plusGrid"></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cathy Doss — Product Designer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
 
-    <div class="page-frame">
-      <header>
-        <nav>
-          <ul>
-            <li><a href="../index.html">Home</a></li>
-            <li><a href="../sandbox.html">Sandbox</a></li>
-            <li><a href="../about.html">About</a></li>
-            <li><a href="#contact" class="nav-contact">Contact</a></li>
+<div class="page-frame">
+
+  <header>
+    <nav>
+      <ul>
+        <li><a href="#home" class="nav-link">Home</a></li>
+        <li><a href="#sandbox" class="nav-link">Sandbox</a></li>
+        <li><a href="#about" class="nav-link">About</a></li>
+        <li><a href="#contact" class="nav-link nav-contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- HOME -->
+  <div id="page-home" class="page">
+    <main>
+      <section id="hero">
+        <h1>Cathy Doss</h1>
+        <p class="hero-subtitle">
+          Product designer rooted in human understanding <sup>(01)</sup> &amp; delight <sup>(02)</sup>
+        </p>
+      </section>
+      <section id="work">
+        <h2>[ Selected Work ]</h2>
+        <ul class="work-grid">
+          <li data-project="venmo">
+            <article>
+              <div class="project-image"></div>
+              <p class="project-tags">User Research &bull; Fintech</p>
+              <h3>Venmo Group Split</h3>
+            </article>
+          </li>
+          <li data-project="trader-goes">
+            <article>
+              <div class="project-image"></div>
+              <p class="project-tags">Mobile App &bull; Grocery Delivery</p>
+              <h3>Trader Goe's</h3>
+            </article>
+          </li>
+          <li data-project="forktales">
+            <article>
+              <div class="project-image"></div>
+              <p class="project-tags">Social &bull; Interaction Design</p>
+              <h3>ForkTales</h3>
+            </article>
+          </li>
+          <li data-project="clinic-catalyst">
+            <article>
+              <div class="project-image"></div>
+              <p class="project-tags">Web Design &bull; AI Healthtech</p>
+              <h3>Clinic Catalyst</h3>
+            </article>
+          </li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <!-- ABOUT -->
+  <div id="page-about" class="page">
+    <main>
+      <section class="about-intro">
+        <div class="about-intro-text">
+          <h1>I'm Cathy — a designer,<br>dancer, and builder</h1>
+          <p>Ever since I was young, observing human interactions have always piqued my interests. From how they communicate, to how they navigated situations — I gained a deep understanding of the world through their behavior, leading me to receive a degree in Cognitive Behavioral Neuroscience at UC San Diego.</p>
+        </div>
+        <div class="polaroid">
+          <div class="polaroid-img"></div>
+          <p class="polaroid-label">Cathy ☺</p>
+        </div>
+      </section>
+      <hr class="about-divider">
+      <section class="about-theory">
+        <div class="theory-card"></div>
+        <div class="theory-text">
+          <h2>But understanding wasn't enough. I wanted to turn theory <span class="theory-arrow">→</span> tangible ✦</h2>
+          <p>Understanding people wasn't enough for me. I didn't just want to study behavior — I wanted to shape it, design for it, and build things that could live in the real world. That pull led me to NYU, where I'm now studying human-computer interaction and exploring how art and technology intersect.</p>
+        </div>
+      </section>
+      <hr class="about-divider">
+      <section class="outside-section">
+        <h2>Outside of design...</h2>
+        <div class="outside-grid">
+          <div class="outside-card"></div>
+          <div class="outside-card"></div>
+          <div class="outside-card"></div>
+        </div>
+      </section>
+      <hr class="about-divider">
+      <section class="learn-section">
+        <h2>Learn About Me</h2>
+        <div class="learn-layout">
+          <div class="experience-list">
+            <div class="experience-item"><div class="experience-icon">ITP</div>Design Lab Mentor @ ITP Design Lab</div>
+            <div class="experience-item"><div class="experience-icon">AI</div>NYU Manus AI Ambassador</div>
+            <div class="experience-item"><div class="experience-icon">UXC</div>Outreach Coordinator @ UX Club</div>
+            <div class="experience-item"><div class="experience-icon">UXC</div>Outreach Coordinator @ UX Club</div>
+          </div>
+          <div class="drag-area">
+            <div class="drag-placeholder">Drag an experience here</div>
+            <div class="drag-preview"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- FORKTALES -->
+  <div id="page-forktales" class="page">
+    <main>
+      <a class="case-back" href="#home">← Back to work</a>
+      <div class="case-header">
+        <div class="case-tags">
+          <span class="case-tag">Social</span>
+          <span class="case-tag">Interaction Design</span>
+          <span class="case-tag">Mobile</span>
+        </div>
+        <h1>ForkTales</h1>
+        <p class="case-intro">A social cooking app that uses daily prompts, team challenges, and shared feasts to turn everyday meals into moments of connection.</p>
+        <div class="case-header-meta">
+          <div class="case-meta-group"><span class="case-meta-label">Role</span><span class="case-meta-value">Product Designer</span></div>
+          <div class="case-meta-group"><span class="case-meta-label">Duration</span><span class="case-meta-value">10 Weeks</span></div>
+          <div class="case-meta-group"><span class="case-meta-label">Tools</span><span class="case-meta-value">Figma, Canva</span></div>
+        </div>
+      </div>
+      <div class="case-hero-image"></div>
+      <section class="case-section">
+        <p class="case-section-label">Context & Role</p>
+        <h2>Cooking Much Alone</h2>
+        <p>ForkTales was born out of a pressing observation: designed for millions, our cooking apps fail to motivate and shared interest in trying together makes cooking effective and more intentional while keeping people on track in a productive mission.</p>
+        <p>As the sole product designer, I was responsible for the entire design — from initial sketches and prototypes to high-fidelity screens and the final pitch. The goal was to make ForkTales feel warm, playful, and built for real humans — not productivity machines.</p>
+      </section>
+      <div class="case-pullquote">
+        <p>How might cooking <em>feel</em> different if it were treated as a shared experience, not a solo task?</p>
+      </div>
+      <section class="case-section">
+        <p class="case-section-label">Design Focus</p>
+        <h2>Three Design Pillars</h2>
+        <div class="case-feature-grid">
+          <div class="case-feature"><h3>Playful</h3><p>Cooking feels lighter when it's framed as a game. Prompts, streaks, and celebratory moments make the routine feel special.</p></div>
+          <div class="case-feature"><h3>Shared</h3><p>Cooking is more fun together. Team challenges and ingredient sharing create genuine social rituals around food.</p></div>
+          <div class="case-feature"><h3>Rewarded</h3><p>Progress is visible. Completing challenges and sharing feasts earns points and unlocks community recognition.</p></div>
+        </div>
+      </section>
+      <section class="case-section">
+        <p class="case-section-label">Key Features</p>
+        <h2>Feature 1: Cooking Prompts</h2>
+        <div class="feature-tags"><span class="feature-tag">Notification Design</span><span class="feature-tag">Daily Engagement</span></div>
+        <p>Daily prompts serve as a gentle nudge that pulls you out of your usual rotation. They invite something new rather than something you're assigned to.</p>
+        <div class="case-image-block"></div>
+        <h2 style="margin-top: var(--space-lg);">Feature 2: Team Assignment & Home Feed</h2>
+        <div class="feature-tags"><span class="feature-tag">Social Design</span><span class="feature-tag">Community</span></div>
+        <p>After downloading, users are assigned to real teams and brought into an existing shared kitchen where they feel like they're joining something already in motion.</p>
+        <div class="case-image-block"></div>
+        <h2 style="margin-top: var(--space-lg);">Feature 3: Team Feasts</h2>
+        <div class="feature-tags"><span class="feature-tag">Social</span><span class="feature-tag">Ritual</span><span class="feature-tag">Community</span></div>
+        <p>Users cook the same dish at the same time and bring their results to a virtual feast. The app celebrates the attempt, not just the outcome.</p>
+        <div class="case-image-block"></div>
+      </section>
+      <section class="case-outcome">
+        <p class="case-section-label">Outcome & Reflection</p>
+        <p>ForkTales taught me that cooking is a deeply social act that technology had mostly turned into a solo one. It reinforced my belief in designing systems that encourage people rather than optimize them.</p>
+        <div class="case-image-block case-image-sm" style="margin-top: var(--space-md);"></div>
+        <div style="margin-top: var(--space-lg);">
+          <p class="case-section-label">Next Steps</p>
+          <ul class="next-steps-list">
+            <li>Explore how team dynamics shift when group sizes vary (2 vs. 8 people)</li>
+            <li>Test whether prompts work better as push notifications or in-app moments</li>
+            <li>Add dietary accommodations to ensure accessibility for all team members</li>
+            <li>Build out official advisor connections so teams can get professional guidance</li>
           </ul>
-        </nav>
-      </header>
+        </div>
+      </section>
+    </main>
+  </div>
 
-      <main class="project">
-        <section class="project-top">
-          <div>
-            <h1>Trader Goe’s</h1>
-            <div class="chips">
-              <span class="chip">Mobile</span>
-              <span class="chip">App</span>
-              <span class="chip">Service Design</span>
-            </div>
-            <p class="muted">
-              A mobile app concept focused on faster grocery planning, discovery, and delivery for Trader Joe’s shoppers.
-            </p>
-          </div>
+  <!-- CLINIC CATALYST -->
+  <div id="page-clinic-catalyst" class="page">
+    <main>
+      <a class="case-back" href="#home">← Back to work</a>
+      <div class="case-header">
+        <div class="case-tags">
+          <span class="case-tag">Web Design</span>
+          <span class="case-tag">AI Healthtech</span>
+          <span class="case-tag">B2B</span>
+        </div>
+        <h1>Clinic Catalyst Website</h1>
+        <p class="case-intro">A website designed to clearly introduce and communicate a medical AI platform for clinics, investors, and clinical stakeholders.</p>
+        <div class="case-header-meta">
+          <div class="case-meta-group"><span class="case-meta-label">Role</span><span class="case-meta-value">Product Design, Inc.</span></div>
+          <div class="case-meta-group"><span class="case-meta-label">Duration</span><span class="case-meta-value">6 Weeks</span></div>
+          <div class="case-meta-group"><span class="case-meta-label">Tools</span><span class="case-meta-value">Figma</span></div>
+        </div>
+      </div>
+      <div class="case-hero-image"></div>
+      <section class="case-section">
+        <p class="case-section-label">Context & Role</p>
+        <h2>Meet Clinic Catalyst</h2>
+        <p>Clinic Catalyst is an AI-powered platform designed to reduce administrative burden for clinics and streamline interactions between clinics and hospitals.</p>
+        <p>I joined the team of startup designers tasked with designing a marketing website for the company. The challenge was communicating their identity to a wide range of audiences — from clinicians to investors.</p>
+      </section>
+      <div class="case-pullquote">
+        <p>In healthcare and investor settings, unclear storytelling can make strong products feel less trustworthy.</p>
+      </div>
+      <section class="case-section">
+        <p class="case-section-label">Design Approach</p>
+        <div class="case-step">
+          <span class="case-step-num">01 —</span>
+          <div class="case-step-body"><h3>Competitor Analysis</h3><p>I started by reviewing available website options to identify product and healthcare tech competitors, breaking them down into common structural patterns.</p></div>
+        </div>
+        <div class="case-image-block"></div>
+        <div class="case-step" style="margin-top: var(--space-lg);">
+          <span class="case-step-num">02 —</span>
+          <div class="case-step-body"><h3>Refining the Message Structure</h3><p>Working alongside the founders, I organized the platform's message into a clear narrative arc with each page section serving a specific communication purpose.</p></div>
+        </div>
+        <div class="case-image-block"></div>
+        <div class="case-step" style="margin-top: var(--space-lg);">
+          <span class="case-step-num">03 —</span>
+          <div class="case-step-body"><h3>Wireframing & Modular Design</h3><p>I developed and evolved wireframes for the non-core breakdowns hierarchy, focusing on flexibility and finding the right fit for each module.</p></div>
+        </div>
+        <div class="case-image-block"></div>
+        <div class="case-step" style="margin-top: var(--space-lg);">
+          <span class="case-step-num">04 —</span>
+          <div class="case-step-body"><h3>Visual Direction & Iteration</h3><p>The visual direction intentionally bridged clinical credibility with approachability, developing the visual language while translating values into something recognizable.</p></div>
+        </div>
+        <div class="case-image-block"></div>
+        <div class="case-step" style="margin-top: var(--space-lg);">
+          <span class="case-step-num">05 —</span>
+          <div class="case-step-body"><h3>Motion & Storytelling</h3><p>I explored animation patterns and motion principles to create micro-interactions that guide users through the platform's value proposition without overwhelming them.</p></div>
+        </div>
+        <div class="case-image-grid">
+          <div class="case-image-block case-image-sm"></div>
+          <div class="case-image-block case-image-sm"></div>
+        </div>
+      </section>
+      <section class="case-outcome">
+        <p class="case-section-label">Outcome</p>
+        <p>The result was a purpose-built experience for medical and clinical healthcare content. Clinic Catalyst now has a visual voice, along with a series of components aligned with bringing the visual language to life.</p>
+        <div style="margin-top: var(--space-lg);">
+          <p class="case-section-label">Next Steps</p>
+          <ul class="next-steps-list">
+            <li>Explore interactive prototype testing with clinical stakeholders</li>
+            <li>Develop component library documentation for the broader design team</li>
+            <li>Test content hierarchy with investors vs. clinical audience segments</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
 
-          <aside class="project-meta">
-            <p><span class="meta-label">Role</span><br />Product Designer</p>
-            <p><span class="meta-label">Duration</span><br />5 Weeks</p>
-            <p><span class="meta-label">Tools</span><br />Figma</p>
-          </aside>
-        </section>
+  <!-- TRADER GOE'S -->
+  <div id="page-trader-goes" class="page">
+    <main>
+      <a class="case-back" href="#home">← Back to work</a>
+      <div class="case-header">
+        <div class="case-tags">
+          <span class="case-tag">Product Design</span>
+          <span class="case-tag">Mobile App</span>
+          <span class="case-tag">UX Research</span>
+        </div>
+        <h1>Trader Goe's</h1>
+        <p class="case-intro">A mobile app concept focused on faster grocery planning, discovery, and delivery for Trader Joe's shoppers.</p>
+        <div class="case-header-meta">
+          <div class="case-meta-group"><span class="case-meta-label">Role</span><span class="case-meta-value">Product Designer</span></div>
+          <div class="case-meta-group"><span class="case-meta-label">Duration</span><span class="case-meta-value">3 Weeks</span></div>
+          <div class="case-meta-group"><span class="case-meta-label">Tools</span><span class="case-meta-value">Figma</span></div>
+        </div>
+      </div>
+      <div class="case-hero-image"></div>
+      <section class="case-section">
+        <p class="case-section-label">Context & Role</p>
+        <h2>Grocery Shopping, Simplified</h2>
+        <p>Trader Joe's has always been an experience — the products, the culture, the discovery. But without a dedicated app to support planning, delivery, or discovery, shopping could feel disjointed.</p>
+        <p>As the sole product designer, I led feature concept research, user interview synthesis, low-fidelity wireframes, and validated design decisions used in the final deliverable.</p>
+      </section>
+      <div class="case-pullquote">
+        <p>How might Trader Joe's app extend the in-store experience to better support planning, discovery, and convenience?</p>
+      </div>
+      <section class="case-section">
+        <p class="case-section-label">Design Focus</p>
+        <p>The project focused on three people who shop at Trader Joe's often, all with very different changing experiences. I prioritized speed, flexibility, and content discovery while staying true to the brand's playful, community-driven feel.</p>
+        <div class="case-image-grid">
+          <div class="case-image-block case-image-sm"></div>
+          <div class="case-image-block case-image-sm"></div>
+          <div class="case-image-block case-image-sm"></div>
+          <div class="case-image-block case-image-sm"></div>
+        </div>
+      </section>
+      <section class="case-section">
+        <p class="case-section-label">Key Features</p>
+        <h2>Feature 1: Recipe Discovery & Filters</h2>
+        <div class="feature-tags"><span class="feature-tag">Product Discovery</span><span class="feature-tag">Navigation Design</span></div>
+        <p>Users can browse recipes using quick tag-based filters that map to mood topics and preferences, making it easier to decide what to cook and buy in a single flow.</p>
+        <div class="case-image-block"></div>
+        <h2 style="margin-top: var(--space-lg);">Feature 2: Integrate Podcast Experience</h2>
+        <div class="feature-tags"><span class="feature-tag">Participating</span><span class="feature-tag">Social Integration</span></div>
+        <p>Trader Joe's podcast content built directly into the app with a listening bar that stays accessible while users browse products or check out.</p>
+        <div class="case-image-block"></div>
+        <h2 style="margin-top: var(--space-lg);">Feature 3: Live Order Tracking</h2>
+        <div class="feature-tags"><span class="feature-tag">Trust Building</span><span class="feature-tag">Core Service</span></div>
+        <p>A real-time order status and delivery tracking helps users feel confident about their orders and have a clearer picture of when groceries will arrive.</p>
+        <div class="case-image-block"></div>
+      </section>
+      <section class="case-outcome">
+        <p class="case-section-label">Outcome & Reflection</p>
+        <p>The final result combines delivery, planning and podcasts into one experience. The project pushed me to think carefully about scope and difficulty while designing within a strong brand identity.</p>
+        <div class="case-image-block" style="margin-top: var(--space-md);"></div>
+        <div style="margin-top: var(--space-lg);">
+          <p class="case-section-label">Next Steps</p>
+          <ul class="next-steps-list">
+            <li>Explore more robust features and interactions to be tested with potential users</li>
+            <li>Continue to find user needs and test more features that fit their lifestyle</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
 
-        <div class="project-hero-image" aria-hidden="true"></div>
+  <!-- VENMO -->
+  <div id="page-venmo" class="page">
+    <main>
+      <a class="case-back" href="#home">← Back to work</a>
+      <div class="case-header">
+        <div class="case-tags"><span class="case-tag">User Research</span><span class="case-tag">Fintech</span></div>
+        <h1>Venmo Group Split</h1>
+        <p class="case-intro">Coming soon.</p>
+      </div>
+    </main>
+  </div>
 
-        <section class="two-col">
-          <div>
-            <h2>Context & Role</h2>
-            <p class="muted">
-              (Paste your “Context & Role” copy here.)
-            </p>
-          </div>
-          <div>
-            <h2>My Role</h2>
-            <p class="muted">
-              (Paste your “My Role” copy here.)
-            </p>
-          </div>
-        </section>
+</div>
 
-        <section>
-          <h2>The Problem</h2>
-          <p class="muted">
-            How might Trader Joe’s extend the in-store experience to better support planning, discovery, and convenience?
-          </p>
-        </section>
+<script>
+  const pages = {
+    'home':            document.getElementById('page-home'),
+    'about':           document.getElementById('page-about'),
+    'forktales':       document.getElementById('page-forktales'),
+    'clinic-catalyst': document.getElementById('page-clinic-catalyst'),
+    'trader-goes':     document.getElementById('page-trader-goes'),
+    'venmo':           document.getElementById('page-venmo'),
+  };
 
-        <section>
-          <h2>Key Features</h2>
-          <div class="feature">
-            <div class="feature-img" aria-hidden="true"></div>
-            <div>
-              <h3>Recipe Discovery & Filters</h3>
-              <p class="muted">(Feature copy)</p>
-            </div>
-          </div>
+  const navLinks = document.querySelectorAll('.nav-link');
 
-          <div class="feature">
-            <div class="feature-img" aria-hidden="true"></div>
-            <div>
-              <h3>Integrate Podcast Experience</h3>
-              <p class="muted">(Feature copy)</p>
-            </div>
-          </div>
+  function showPage(id) {
+    Object.values(pages).forEach(p => p.classList.remove('active'));
+    const target = pages[id] || pages['home'];
+    target.classList.add('active');
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href').replace('#', '') === id) link.classList.add('active');
+    });
+    window.scrollTo(0, 0);
+  }
 
-          <div class="feature">
-            <div class="feature-img" aria-hidden="true"></div>
-            <div>
-              <h3>Live Order Tracking</h3>
-              <p class="muted">(Feature copy)</p>
-            </div>
-          </div>
-        </section>
+  function handleRoute() {
+    const hash = window.location.hash.replace('#', '') || 'home';
+    showPage(hash);
+  }
 
-        <section>
-          <h2>Outcome & Reflection</h2>
-          <p class="muted">(Outcome copy)</p>
-        </section>
+  document.querySelectorAll('.work-grid li[data-project]').forEach(card => {
+    card.addEventListener('click', () => {
+      window.location.hash = card.getAttribute('data-project');
+    });
+  });
 
-        <section>
-          <h2>Next Steps</h2>
-          <p class="muted">(Next steps copy)</p>
-        </section>
+  document.querySelectorAll('.case-back').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.hash = 'home';
+    });
+  });
 
-        <section id="contact" class="contact">
-          <h2>[ Contact ]</h2>
-          <p class="muted">Email: <a href="mailto:youremail@example.com">youremail@example.com</a></p>
-        </section>
-      </main>
-    </div>
+  window.addEventListener('hashchange', handleRoute);
+  handleRoute();
+</script>
 
-    <script src="../script.js"></script>
-  </body>
+</body>
 </html>
