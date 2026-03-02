@@ -1,35 +1,51 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from "react"
+import Home from "./pages/Home"
+import About from "./pages/About"
+import ForkTales from "./pages/ForkTales"
+import ClinicCatalyst from "./pages/ClinicCatalyst"
+import TraderGoes from "./pages/TraderGoes"
+import Venmo from "./pages/Venmo"
+import Nav from "./components/Nav"
+import PlusGridBackground from "./components/PlusGridBackground"
+import "./index.css"
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [page, setPage] = useState("home")
+
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.replace("#", "") || "home"
+      setPage(hash)
+      window.scrollTo(0, 0)
+    }
+    handleHash()
+    window.addEventListener("hashchange", handleHash)
+    return () => window.removeEventListener("hashchange", handleHash)
+  }, [])
+
+  const navigate = (p) => { window.location.hash = p }
+
+  const pages = {
+    home: <Home navigate={navigate} />,
+    about: <About />,
+    forktales: <ForkTales navigate={navigate} />,
+    "clinic-catalyst": <ClinicCatalyst navigate={navigate} />,
+    "trader-goes": <TraderGoes navigate={navigate} />,
+    venmo: <Venmo navigate={navigate} />,
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      {/* Fixed full-page plus grid behind everything */}
+      <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>
+        <PlusGridBackground />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+
+      {/* All page content sits on top */}
+      <div style={{ position: "relative", zIndex: 1 }} className="page-frame">
+        <Nav page={page} />
+        {pages[page] || pages["home"]}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
-
-export default App
