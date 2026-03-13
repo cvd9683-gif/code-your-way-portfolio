@@ -8,67 +8,96 @@
 </head>
 <body>
 
+<!-- Plus grid canvas — sits fixed behind everything -->
+<canvas id="plusGrid"></canvas>
+
 <div class="page-frame">
 
   <header>
+    <span class="nav-wordmark">Cathy Doss</span>
     <nav>
       <ul>
-        <li><a href="#home" class="nav-link">Home</a></li>
+        <li><a href="#home"    class="nav-link">Home</a></li>
         <li><a href="#sandbox" class="nav-link">Sandbox</a></li>
-        <li><a href="#about" class="nav-link">About</a></li>
+        <li><a href="#about"   class="nav-link">About</a></li>
         <li><a href="#contact" class="nav-link nav-contact">Contact</a></li>
       </ul>
     </nav>
   </header>
 
-  <!-- HOME -->
+  <!-- ─────────────── HOME ─────────────── -->
   <div id="page-home" class="page">
     <main>
+
       <section id="hero">
-        <h1>Cathy Doss</h1>
+        <p class="hero-label">Product Designer · NYC</p>
+        <h1>Cathy<br>Doss</h1>
         <p class="hero-subtitle">
-          Product designer rooted in human understanding <sup>(01)</sup> &amp; delight <sup>(02)</sup>
+          Product designer rooted in human understanding <sup>(01)</sup>
+          &amp; delight <sup>(02)</sup>
         </p>
+        <div class="hero-meta">
+          <span class="hero-meta-item">NYU ITP</span>
+          <span class="hero-meta-sep"></span>
+          <span class="hero-meta-item">Cognitive Behavioral Neuroscience</span>
+          <span class="hero-meta-sep"></span>
+          <span class="hero-meta-item">HCI</span>
+        </div>
       </section>
+
       <section id="work">
-        <h2>[ Selected Work ]</h2>
+        <p class="section-label">Selected Work</p>
         <ul class="work-grid">
           <li data-project="venmo">
             <article>
               <div class="project-image"></div>
-              <p class="project-tags">User Research &bull; Fintech</p>
-              <h3>Venmo Group Split</h3>
+              <div class="project-meta">
+                <p class="project-tags">User Research &bull; Fintech</p>
+                <h3>Venmo Group Split</h3>
+                <p class="work-grid-arrow">View case study →</p>
+              </div>
             </article>
           </li>
           <li data-project="trader-goes">
             <article>
               <div class="project-image"></div>
-              <p class="project-tags">Mobile App &bull; Grocery Delivery</p>
-              <h3>Trader Goe's</h3>
+              <div class="project-meta">
+                <p class="project-tags">Mobile App &bull; Grocery Delivery</p>
+                <h3>Trader Goe's</h3>
+                <p class="work-grid-arrow">View case study →</p>
+              </div>
             </article>
           </li>
           <li data-project="forktales">
             <article>
               <div class="project-image"></div>
-              <p class="project-tags">Social &bull; Interaction Design</p>
-              <h3>ForkTales</h3>
+              <div class="project-meta">
+                <p class="project-tags">Social &bull; Interaction Design</p>
+                <h3>ForkTales</h3>
+                <p class="work-grid-arrow">View case study →</p>
+              </div>
             </article>
           </li>
           <li data-project="clinic-catalyst">
             <article>
               <div class="project-image"></div>
-              <p class="project-tags">Web Design &bull; AI Healthtech</p>
-              <h3>Clinic Catalyst</h3>
+              <div class="project-meta">
+                <p class="project-tags">Web Design &bull; AI Healthtech</p>
+                <h3>Clinic Catalyst</h3>
+                <p class="work-grid-arrow">View case study →</p>
+              </div>
             </article>
           </li>
         </ul>
       </section>
+
     </main>
   </div>
 
-  <!-- ABOUT -->
+  <!-- ─────────────── ABOUT ─────────────── -->
   <div id="page-about" class="page">
     <main>
+
       <section class="about-intro">
         <div class="about-intro-text">
           <h1>I'm Cathy — a designer,<br>dancer, and builder</h1>
@@ -79,7 +108,9 @@
           <p class="polaroid-label">Cathy ☺</p>
         </div>
       </section>
+
       <hr class="about-divider">
+
       <section class="about-theory">
         <div class="theory-card"></div>
         <div class="theory-text">
@@ -87,7 +118,9 @@
           <p>Understanding people wasn't enough for me. I didn't just want to study behavior — I wanted to shape it, design for it, and build things that could live in the real world. That pull led me to NYU, where I'm now studying human-computer interaction and exploring how art and technology intersect.</p>
         </div>
       </section>
+
       <hr class="about-divider">
+
       <section class="outside-section">
         <h2>Outside of design...</h2>
         <div class="outside-grid">
@@ -96,26 +129,37 @@
           <div class="outside-card"></div>
         </div>
       </section>
+
       <hr class="about-divider">
+
       <section class="learn-section">
         <h2>Learn About Me</h2>
         <div class="learn-layout">
-          <div class="experience-list">
-            <div class="experience-item"><div class="experience-icon">ITP</div>Design Lab Mentor @ ITP Design Lab</div>
-            <div class="experience-item"><div class="experience-icon">AI</div>NYU Manus AI Ambassador</div>
-            <div class="experience-item"><div class="experience-icon">UXC</div>Outreach Coordinator @ UX Club</div>
-            <div class="experience-item"><div class="experience-icon">UXC</div>Outreach Coordinator @ UX Club</div>
+          <div class="experience-list" id="experienceList">
+            <div class="experience-item" draggable="true" data-id="itp">
+              <div class="experience-icon">ITP</div>Design Lab Mentor @ ITP Design Lab
+            </div>
+            <div class="experience-item" draggable="true" data-id="ai">
+              <div class="experience-icon">AI</div>NYU Manus AI Ambassador
+            </div>
+            <div class="experience-item" draggable="true" data-id="uxc1">
+              <div class="experience-icon">UXC</div>Outreach Coordinator @ UX Club
+            </div>
+            <div class="experience-item" draggable="true" data-id="uxc2">
+              <div class="experience-icon">UXC</div>Outreach Coordinator @ UX Club
+            </div>
           </div>
-          <div class="drag-area">
-            <div class="drag-placeholder">Drag an experience here</div>
-            <div class="drag-preview"></div>
+          <div class="drag-area" id="dragArea">
+            <p class="drag-placeholder">Drag an experience here</p>
+            <div class="drag-preview" id="dragPreview"></div>
           </div>
         </div>
       </section>
+
     </main>
   </div>
 
-  <!-- FORKTALES -->
+  <!-- ─────────────── FORKTALES ─────────────── -->
   <div id="page-forktales" class="page">
     <main>
       <a class="case-back" href="#home">← Back to work</a>
@@ -135,7 +179,7 @@
       </div>
       <div class="case-hero-image"></div>
       <section class="case-section">
-        <p class="case-section-label">Context & Role</p>
+        <p class="case-section-label">Context &amp; Role</p>
         <h2>Cooking Much Alone</h2>
         <p>ForkTales was born out of a pressing observation: designed for millions, our cooking apps fail to motivate and shared interest in trying together makes cooking effective and more intentional while keeping people on track in a productive mission.</p>
         <p>As the sole product designer, I was responsible for the entire design — from initial sketches and prototypes to high-fidelity screens and the final pitch. The goal was to make ForkTales feel warm, playful, and built for real humans — not productivity machines.</p>
@@ -158,20 +202,20 @@
         <div class="feature-tags"><span class="feature-tag">Notification Design</span><span class="feature-tag">Daily Engagement</span></div>
         <p>Daily prompts serve as a gentle nudge that pulls you out of your usual rotation. They invite something new rather than something you're assigned to.</p>
         <div class="case-image-block"></div>
-        <h2 style="margin-top: var(--space-lg);">Feature 2: Team Assignment & Home Feed</h2>
+        <h2 style="margin-top: var(--s4);">Feature 2: Team Assignment &amp; Home Feed</h2>
         <div class="feature-tags"><span class="feature-tag">Social Design</span><span class="feature-tag">Community</span></div>
         <p>After downloading, users are assigned to real teams and brought into an existing shared kitchen where they feel like they're joining something already in motion.</p>
         <div class="case-image-block"></div>
-        <h2 style="margin-top: var(--space-lg);">Feature 3: Team Feasts</h2>
+        <h2 style="margin-top: var(--s4);">Feature 3: Team Feasts</h2>
         <div class="feature-tags"><span class="feature-tag">Social</span><span class="feature-tag">Ritual</span><span class="feature-tag">Community</span></div>
         <p>Users cook the same dish at the same time and bring their results to a virtual feast. The app celebrates the attempt, not just the outcome.</p>
         <div class="case-image-block"></div>
       </section>
       <section class="case-outcome">
-        <p class="case-section-label">Outcome & Reflection</p>
+        <p class="case-section-label">Outcome &amp; Reflection</p>
         <p>ForkTales taught me that cooking is a deeply social act that technology had mostly turned into a solo one. It reinforced my belief in designing systems that encourage people rather than optimize them.</p>
-        <div class="case-image-block case-image-sm" style="margin-top: var(--space-md);"></div>
-        <div style="margin-top: var(--space-lg);">
+        <div class="case-image-block case-image-sm" style="margin-top: var(--s3);"></div>
+        <div style="margin-top: var(--s4);">
           <p class="case-section-label">Next Steps</p>
           <ul class="next-steps-list">
             <li>Explore how team dynamics shift when group sizes vary (2 vs. 8 people)</li>
@@ -184,7 +228,7 @@
     </main>
   </div>
 
-  <!-- CLINIC CATALYST -->
+  <!-- ─────────────── CLINIC CATALYST ─────────────── -->
   <div id="page-clinic-catalyst" class="page">
     <main>
       <a class="case-back" href="#home">← Back to work</a>
@@ -204,7 +248,7 @@
       </div>
       <div class="case-hero-image"></div>
       <section class="case-section">
-        <p class="case-section-label">Context & Role</p>
+        <p class="case-section-label">Context &amp; Role</p>
         <h2>Meet Clinic Catalyst</h2>
         <p>Clinic Catalyst is an AI-powered platform designed to reduce administrative burden for clinics and streamline interactions between clinics and hospitals.</p>
         <p>I joined the team of startup designers tasked with designing a marketing website for the company. The challenge was communicating their identity to a wide range of audiences — from clinicians to investors.</p>
@@ -219,24 +263,24 @@
           <div class="case-step-body"><h3>Competitor Analysis</h3><p>I started by reviewing available website options to identify product and healthcare tech competitors, breaking them down into common structural patterns.</p></div>
         </div>
         <div class="case-image-block"></div>
-        <div class="case-step" style="margin-top: var(--space-lg);">
+        <div class="case-step" style="margin-top: var(--s4);">
           <span class="case-step-num">02 —</span>
           <div class="case-step-body"><h3>Refining the Message Structure</h3><p>Working alongside the founders, I organized the platform's message into a clear narrative arc with each page section serving a specific communication purpose.</p></div>
         </div>
         <div class="case-image-block"></div>
-        <div class="case-step" style="margin-top: var(--space-lg);">
+        <div class="case-step" style="margin-top: var(--s4);">
           <span class="case-step-num">03 —</span>
-          <div class="case-step-body"><h3>Wireframing & Modular Design</h3><p>I developed and evolved wireframes for the non-core breakdowns hierarchy, focusing on flexibility and finding the right fit for each module.</p></div>
+          <div class="case-step-body"><h3>Wireframing &amp; Modular Design</h3><p>I developed and evolved wireframes for the non-core breakdowns hierarchy, focusing on flexibility and finding the right fit for each module.</p></div>
         </div>
         <div class="case-image-block"></div>
-        <div class="case-step" style="margin-top: var(--space-lg);">
+        <div class="case-step" style="margin-top: var(--s4);">
           <span class="case-step-num">04 —</span>
-          <div class="case-step-body"><h3>Visual Direction & Iteration</h3><p>The visual direction intentionally bridged clinical credibility with approachability, developing the visual language while translating values into something recognizable.</p></div>
+          <div class="case-step-body"><h3>Visual Direction &amp; Iteration</h3><p>The visual direction intentionally bridged clinical credibility with approachability, developing the visual language while translating values into something recognizable.</p></div>
         </div>
         <div class="case-image-block"></div>
-        <div class="case-step" style="margin-top: var(--space-lg);">
+        <div class="case-step" style="margin-top: var(--s4);">
           <span class="case-step-num">05 —</span>
-          <div class="case-step-body"><h3>Motion & Storytelling</h3><p>I explored animation patterns and motion principles to create micro-interactions that guide users through the platform's value proposition without overwhelming them.</p></div>
+          <div class="case-step-body"><h3>Motion &amp; Storytelling</h3><p>I explored animation patterns and motion principles to create micro-interactions that guide users through the platform's value proposition without overwhelming them.</p></div>
         </div>
         <div class="case-image-grid">
           <div class="case-image-block case-image-sm"></div>
@@ -246,7 +290,7 @@
       <section class="case-outcome">
         <p class="case-section-label">Outcome</p>
         <p>The result was a purpose-built experience for medical and clinical healthcare content. Clinic Catalyst now has a visual voice, along with a series of components aligned with bringing the visual language to life.</p>
-        <div style="margin-top: var(--space-lg);">
+        <div style="margin-top: var(--s4);">
           <p class="case-section-label">Next Steps</p>
           <ul class="next-steps-list">
             <li>Explore interactive prototype testing with clinical stakeholders</li>
@@ -258,7 +302,7 @@
     </main>
   </div>
 
-  <!-- TRADER GOE'S -->
+  <!-- ─────────────── TRADER GOE'S ─────────────── -->
   <div id="page-trader-goes" class="page">
     <main>
       <a class="case-back" href="#home">← Back to work</a>
@@ -278,7 +322,7 @@
       </div>
       <div class="case-hero-image"></div>
       <section class="case-section">
-        <p class="case-section-label">Context & Role</p>
+        <p class="case-section-label">Context &amp; Role</p>
         <h2>Grocery Shopping, Simplified</h2>
         <p>Trader Joe's has always been an experience — the products, the culture, the discovery. But without a dedicated app to support planning, delivery, or discovery, shopping could feel disjointed.</p>
         <p>As the sole product designer, I led feature concept research, user interview synthesis, low-fidelity wireframes, and validated design decisions used in the final deliverable.</p>
@@ -298,24 +342,24 @@
       </section>
       <section class="case-section">
         <p class="case-section-label">Key Features</p>
-        <h2>Feature 1: Recipe Discovery & Filters</h2>
+        <h2>Feature 1: Recipe Discovery &amp; Filters</h2>
         <div class="feature-tags"><span class="feature-tag">Product Discovery</span><span class="feature-tag">Navigation Design</span></div>
         <p>Users can browse recipes using quick tag-based filters that map to mood topics and preferences, making it easier to decide what to cook and buy in a single flow.</p>
         <div class="case-image-block"></div>
-        <h2 style="margin-top: var(--space-lg);">Feature 2: Integrate Podcast Experience</h2>
+        <h2 style="margin-top: var(--s4);">Feature 2: Integrate Podcast Experience</h2>
         <div class="feature-tags"><span class="feature-tag">Participating</span><span class="feature-tag">Social Integration</span></div>
         <p>Trader Joe's podcast content built directly into the app with a listening bar that stays accessible while users browse products or check out.</p>
         <div class="case-image-block"></div>
-        <h2 style="margin-top: var(--space-lg);">Feature 3: Live Order Tracking</h2>
+        <h2 style="margin-top: var(--s4);">Feature 3: Live Order Tracking</h2>
         <div class="feature-tags"><span class="feature-tag">Trust Building</span><span class="feature-tag">Core Service</span></div>
         <p>A real-time order status and delivery tracking helps users feel confident about their orders and have a clearer picture of when groceries will arrive.</p>
         <div class="case-image-block"></div>
       </section>
       <section class="case-outcome">
-        <p class="case-section-label">Outcome & Reflection</p>
+        <p class="case-section-label">Outcome &amp; Reflection</p>
         <p>The final result combines delivery, planning and podcasts into one experience. The project pushed me to think carefully about scope and difficulty while designing within a strong brand identity.</p>
-        <div class="case-image-block" style="margin-top: var(--space-md);"></div>
-        <div style="margin-top: var(--space-lg);">
+        <div class="case-image-block" style="margin-top: var(--s3);"></div>
+        <div style="margin-top: var(--s4);">
           <p class="case-section-label">Next Steps</p>
           <ul class="next-steps-list">
             <li>Explore more robust features and interactions to be tested with potential users</li>
@@ -326,7 +370,7 @@
     </main>
   </div>
 
-  <!-- VENMO -->
+  <!-- ─────────────── VENMO ─────────────── -->
   <div id="page-venmo" class="page">
     <main>
       <a class="case-back" href="#home">← Back to work</a>
@@ -338,52 +382,252 @@
     </main>
   </div>
 
-</div>
+  <!-- FOOTER — lives inside page-frame so it gets the background -->
+  <footer class="page-footer">
+    <span class="footer-copy">© 2025 Cathy Doss</span>
+    <div class="footer-links">
+      <a href="mailto:cvd9683@nyu.edu">Email</a>
+      <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="#" target="_blank" rel="noopener">Resume</a>
+    </div>
+  </footer>
+
+</div><!-- end .page-frame -->
 
 <script>
-  const pages = {
-    'home':            document.getElementById('page-home'),
-    'about':           document.getElementById('page-about'),
-    'forktales':       document.getElementById('page-forktales'),
-    'clinic-catalyst': document.getElementById('page-clinic-catalyst'),
-    'trader-goes':     document.getElementById('page-trader-goes'),
-    'venmo':           document.getElementById('page-venmo'),
+/* ─────────────────────────────────────────────
+   PAGE ROUTER
+───────────────────────────────────────────── */
+const pages = {
+  'home':            document.getElementById('page-home'),
+  'about':           document.getElementById('page-about'),
+  'forktales':       document.getElementById('page-forktales'),
+  'clinic-catalyst': document.getElementById('page-clinic-catalyst'),
+  'trader-goes':     document.getElementById('page-trader-goes'),
+  'venmo':           document.getElementById('page-venmo'),
+};
+const navLinks = document.querySelectorAll('.nav-link');
+
+function showPage(id) {
+  Object.values(pages).forEach(p => p.classList.remove('active'));
+  const target = pages[id] || pages['home'];
+  target.classList.add('active');
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href').replace('#', '') === id) link.classList.add('active');
+  });
+  window.scrollTo(0, 0);
+}
+
+function handleRoute() {
+  const hash = window.location.hash.replace('#', '') || 'home';
+  showPage(hash);
+}
+
+document.querySelectorAll('.work-grid li[data-project]').forEach(card => {
+  card.addEventListener('click', () => {
+    window.location.hash = card.getAttribute('data-project');
+  });
+});
+
+document.querySelectorAll('.case-back').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    window.location.hash = 'home';
+  });
+});
+
+window.addEventListener('hashchange', handleRoute);
+handleRoute();
+
+
+/* ─────────────────────────────────────────────
+   DRAG & DROP — About page
+───────────────────────────────────────────── */
+(function initDrag() {
+  const list     = document.getElementById('experienceList');
+  const dropArea = document.getElementById('dragArea');
+  const preview  = document.getElementById('dragPreview');
+  if (!list || !dropArea) return;
+
+  let dragging = null;
+
+  list.addEventListener('dragstart', e => {
+    dragging = e.target.closest('.experience-item');
+    if (dragging) {
+      dragging.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'copy';
+    }
+  });
+
+  list.addEventListener('dragend', () => {
+    if (dragging) { dragging.classList.remove('dragging'); dragging = null; }
+  });
+
+  dropArea.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropArea.classList.add('drag-over');
+    e.dataTransfer.dropEffect = 'copy';
+  });
+
+  dropArea.addEventListener('dragleave', () => {
+    dropArea.classList.remove('drag-over');
+  });
+
+  dropArea.addEventListener('drop', e => {
+    e.preventDefault();
+    dropArea.classList.remove('drag-over');
+    if (!dragging) return;
+    const clone = dragging.cloneNode(true);
+    clone.classList.remove('dragging');
+    preview.innerHTML = '';
+    preview.appendChild(clone);
+  });
+})();
+
+
+/* ─────────────────────────────────────────────
+   PLUS GRID BACKGROUND
+   Canvas fills the full viewport (position:fixed).
+   getBoundingClientRect() keeps drawing coords
+   and mouse coords in the same space — fixes the
+   offset bug that appears at certain zoom levels
+   and across browsers with scrollbar differences.
+───────────────────────────────────────────── */
+(function initPlusGrid() {
+  const canvas = document.getElementById('plusGrid');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  const cfg = {
+    gridSpacing:     28,
+    plusSize:        14,
+    backgroundColor: '#0E0E0E',
+    baseColor:       '#1F1F1F',
+    influenceRadius: 84,
+    lerpSpeed:       0.08,
+    magnetStrength:  10,
   };
 
-  const navLinks = document.querySelectorAll('.nav-link');
+  const state = {
+    mouse:     { x: -9999, y: -9999 },
+    rotations: {},
+    offsets:   {},
+    rafId:     0,
+    running:   false,
+    width:     0,
+    height:    0,
+  };
 
-  function showPage(id) {
-    Object.values(pages).forEach(p => p.classList.remove('active'));
-    const target = pages[id] || pages['home'];
-    target.classList.add('active');
-    navLinks.forEach(link => {
-      link.classList.remove('active');
-      if (link.getAttribute('href').replace('#', '') === id) link.classList.add('active');
-    });
-    window.scrollTo(0, 0);
+  function setSize() {
+    const dpr  = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    state.width  = rect.width;
+    state.height = rect.height;
+    canvas.width  = Math.round(rect.width  * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  function handleRoute() {
-    const hash = window.location.hash.replace('#', '') || 'home';
-    showPage(hash);
+  function draw() {
+    if (!state.running) return;
+    const W  = state.width;
+    const H  = state.height;
+    const mx = state.mouse.x;
+    const my = state.mouse.y;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = cfg.backgroundColor;
+    ctx.fillRect(0, 0, W, H);
+
+    const cols    = Math.ceil(W / cfg.gridSpacing) + 1;
+    const rows    = Math.ceil(H / cfg.gridSpacing) + 1;
+    const offsetX = (W % cfg.gridSpacing) / 2;
+    const offsetY = (H % cfg.gridSpacing) / 2;
+
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const cx  = offsetX + col * cfg.gridSpacing;
+        const cy  = offsetY + row * cfg.gridSpacing;
+        const key = col + ',' + row;
+
+        const dx   = mx - cx;
+        const dy   = my - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const proximity = Math.max(0, 1 - dist / cfg.influenceRadius);
+
+        /* rotation */
+        const angleToMouse   = Math.atan2(dy, dx) + Math.PI / 4;
+        const weightedTarget = proximity > 0 ? angleToMouse * proximity : 0;
+
+        if (state.rotations[key] === undefined) state.rotations[key] = 0;
+        let current = state.rotations[key];
+        let delta   = weightedTarget - current;
+        while (delta >  Math.PI) delta -= Math.PI * 2;
+        while (delta < -Math.PI) delta += Math.PI * 2;
+        state.rotations[key] = current + delta * cfg.lerpSpeed;
+
+        /* magnetic offset */
+        const norm    = dist > 0 ? dist : 1;
+        const targetOX = proximity > 0 ? (dx / norm) * proximity * cfg.magnetStrength : 0;
+        const targetOY = proximity > 0 ? (dy / norm) * proximity * cfg.magnetStrength : 0;
+        if (!state.offsets[key]) state.offsets[key] = { x: 0, y: 0 };
+        state.offsets[key].x += (targetOX - state.offsets[key].x) * cfg.lerpSpeed;
+        state.offsets[key].y += (targetOY - state.offsets[key].y) * cfg.lerpSpeed;
+
+        const halfArm = cfg.plusSize / 2;
+
+        ctx.save();
+        ctx.translate(cx + state.offsets[key].x, cy + state.offsets[key].y);
+        ctx.rotate(state.rotations[key]);
+        ctx.strokeStyle = cfg.baseColor;
+        ctx.lineWidth   = 1.5;
+        ctx.lineCap     = 'round';
+
+        ctx.beginPath();
+        ctx.moveTo(-halfArm, 0);
+        ctx.lineTo( halfArm, 0);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, -halfArm);
+        ctx.lineTo(0,  halfArm);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+    }
+
+    state.rafId = requestAnimationFrame(draw);
   }
 
-  document.querySelectorAll('.work-grid li[data-project]').forEach(card => {
-    card.addEventListener('click', () => {
-      window.location.hash = card.getAttribute('data-project');
-    });
+  function getRect() { return canvas.getBoundingClientRect(); }
+
+  document.addEventListener('mousemove', e => {
+    const r = getRect();
+    state.mouse = { x: e.clientX - r.left, y: e.clientY - r.top };
+  });
+  document.addEventListener('mouseleave', () => {
+    state.mouse = { x: -9999, y: -9999 };
   });
 
-  document.querySelectorAll('.case-back').forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      window.location.hash = 'home';
-    });
+  /* touch */
+  document.addEventListener('touchmove', e => {
+    const r = getRect();
+    const t = e.touches[0];
+    state.mouse = { x: t.clientX - r.left, y: t.clientY - r.top };
+  }, { passive: true });
+  document.addEventListener('touchend', () => {
+    state.mouse = { x: -9999, y: -9999 };
   });
 
-  window.addEventListener('hashchange', handleRoute);
-  handleRoute();
+  /* ResizeObserver fires on any viewport change, incl. mobile chrome */
+  const ro = new ResizeObserver(() => setSize());
+  ro.observe(document.documentElement);
+  setSize();
+  state.running = true;
+  state.rafId   = requestAnimationFrame(draw);
+})();
 </script>
-
 </body>
 </html>
