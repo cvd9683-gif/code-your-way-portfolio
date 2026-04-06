@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react"
 import Home from "./pages/Home"
 import About from "./pages/About"
+import Sandbox from "./pages/Sandbox"
+import Archive from "./pages/Archive"
 import ForkTales from "./pages/ForkTales"
 import ClinicCatalyst from "./pages/ClinicCatalyst"
 import TraderGoes from "./pages/TraderGoes"
@@ -28,6 +30,8 @@ export default function App() {
   const pages = {
     home: <Home navigate={navigate} />,
     about: <About />,
+    sandbox: <Sandbox navigate={navigate} />,
+    archive: <Archive navigate={navigate} />,
     forktales: <ForkTales navigate={navigate} />,
     "clinic-catalyst": <ClinicCatalyst navigate={navigate} />,
     "trader-goes": <TraderGoes navigate={navigate} />,

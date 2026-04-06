@@ -561,6 +561,336 @@ button.case-back:hover { opacity: 0.6; }
 }
 
 /* ----------------------------------------
+   SPINE NAVIGATOR — archive / sandbox page
+   Full-screen fixed overlay.
+   Nav: vertical colored spine stack,
+        hover expands left, label floats right.
+   Detail: left spine column + right content.
+---------------------------------------- */
+
+/* shared screen base */
+.sn-screen,
+.sd-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: var(--color-bg);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  animation: spineIn 0.35s ease;
+}
+
+@keyframes spineIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── NAV: back button ─── */
+.sn-home-btn {
+  position: fixed;
+  top: 1.3rem;
+  left: var(--page-pad);
+  z-index: 20;
+  background: none;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+.sn-home-btn:hover { color: var(--color-muted); }
+
+/* ── NAV: category index — left side ─── */
+.sn-cat-index {
+  position: fixed;
+  left: var(--page-pad);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.sn-cat-item {
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(68, 68, 68, 0.4);
+  transition: color 0.25s ease;
+  user-select: none;
+}
+.sn-cat-item--on { color: var(--color-muted); }
+
+/* ── NAV: spine stack ───────────────────
+   Right edge anchored at 58vw from left.
+   Items right-align inside the container.
+   On hover, the active spine grows LEFT.
+─────────────────────────────────────────*/
+.sn-stack {
+  position: fixed;
+  right: 42%;          /* right edge sits at 58vw */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 340px;        /* max expansion width */
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-end; /* right-align all spines */
+}
+
+.sn-spine {
+  width: 78px;         /* rest state */
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition:
+    width   0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.3s  ease;
+}
+.sn-spine--on  { width: 340px; }
+.sn-spine--dim { opacity: 0.28; }
+
+/* Project number — small, dark, bottom-right of spine */
+.sn-spine-num {
+  position: absolute;
+  bottom: 6px;
+  right: 7px;
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  color: rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+  user-select: none;
+  font-family: var(--font-mono);
+}
+
+/* ── NAV: floating label — right of stack ──
+   Left edge = right edge of stack (58vw) + gap.
+   Y position set via JS to align with hovered spine.
+──────────────────────────────────────────────────── */
+.sn-label {
+  position: fixed;
+  left: calc(58% + 28px);
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  pointer-events: none;
+}
+.sn-label--visible { opacity: 1; }
+
+.sn-label-title {
+  display: block;
+  font-size: var(--text-sm);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  font-weight: normal;
+  line-height: 1;
+}
+.sn-label-tagline {
+  display: block;
+  font-size: var(--text-xs);
+  letter-spacing: 0.03em;
+  color: var(--color-muted);
+  max-width: 220px;
+  line-height: 1.55;
+}
+.sn-label-hint {
+  display: block;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  margin-top: 0.25rem;
+}
+
+/* ── NAV: footer count ─── */
+.sn-foot {
+  position: fixed;
+  bottom: 1.3rem;
+  left: var(--page-pad);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+/* ─────────────────────────────────────────
+   DETAIL VIEW
+   Left: thin spine column (all projects).
+   Right: hero color block + metadata.
+───────────────────────────────────────── */
+.sd-screen {
+  display: flex;
+}
+
+/* Left spine column */
+.sd-col {
+  width: 52px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sd-strip {
+  flex: 1;
+  opacity: 0.22;
+  transition: flex 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.4s ease;
+}
+.sd-strip--on {
+  flex: 4;   /* selected project gets 4× space in the column */
+  opacity: 1;
+}
+
+/* Main content — fills remaining width */
+.sd-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Back button */
+.sd-back {
+  position: absolute;
+  top: 1.3rem;
+  left: var(--space-md);
+  z-index: 5;
+  background: none;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+.sd-back:hover { color: rgba(0, 0, 0, 0.6); }
+
+/* Hero — project color fills upper portion */
+.sd-hero {
+  flex: 0 0 58%;
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+}
+
+.sd-hero-text {
+  padding: var(--space-lg) var(--space-lg) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.sd-hero-id {
+  font-size: var(--text-xs);
+  letter-spacing: 0.14em;
+  color: rgba(0, 0, 0, 0.28);
+  text-transform: uppercase;
+  display: block;
+}
+
+.sd-hero-title {
+  font-size: clamp(2rem, 5vw, 4.2rem);
+  font-weight: normal;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.42);
+  line-height: 1;
+}
+
+/* Metadata strip */
+.sd-meta {
+  flex: 1;
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  border-top: 1px solid var(--color-border);
+  overflow-y: auto;
+}
+
+.sd-meta-tags {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.sd-tag {
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--color-border);
+  padding: 0.14rem 0.44rem;
+  color: var(--color-faint);
+}
+
+.sd-desc {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  line-height: 1.78;
+  max-width: 480px;
+  letter-spacing: 0.02em;
+}
+
+.sd-actions { margin-top: 0.35rem; }
+
+.sd-cta {
+  background: none;
+  border: 1px dashed var(--color-border);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  transition: color 0.2s, border-color 0.2s;
+}
+.sd-cta:hover {
+  color: var(--color-text);
+  border-color: var(--color-muted);
+}
+
+.sd-wip {
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+/* ── Responsive ──────────────────────── */
+@media (max-width: 700px) {
+  .sn-stack {
+    right: 50%;
+    transform: translate(50%, -50%);
+    width: 260px;
+  }
+  .sn-spine--on { width: 260px; }
+  .sn-label {
+    left: auto;
+    right: var(--page-pad);
+    max-width: 160px;
+  }
+  .sn-cat-index { display: none; }
+  .sd-col { width: 36px; }
+  .sd-hero-title { font-size: 1.8rem; }
+}
+
+/* ── legacy archive classes (no longer used) ── */
+.archive-page { display: none; }
+
+/* ----------------------------------------
    Parallax Gallery
 ---------------------------------------- */
 .gallery-wrapper {
@@ -569,4 +899,276 @@ button.case-back:hover { opacity: 0.6; }
   position: relative;
   overflow: hidden;
   margin-top: var(--space-md);
+}
+
+/* ----------------------------------------
+   SANDBOX PAGE — full-screen pannable field
+---------------------------------------- */
+
+/* Full-screen takeover — overlays page-frame and nav */
+.sandbox-container {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  overflow: hidden;
+  cursor: grab;
+  background: rgba(14, 14, 14, 0.97);
+  font-family: var(--font-mono);
+  /* Subtle dot grid texture */
+  background-image:
+    radial-gradient(circle, rgba(46, 46, 46, 0.55) 1px, transparent 1px),
+    linear-gradient(rgba(30, 30, 30, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 30, 30, 0.18) 1px, transparent 1px);
+  background-size: 48px 48px, 240px 240px, 240px 240px;
+}
+
+/* ----------------------------------------
+   HUD elements — fixed over the field
+---------------------------------------- */
+.sandbox-hud-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem var(--page-pad);
+  pointer-events: none;
+  border-bottom: 1px solid rgba(46, 46, 46, 0.4);
+}
+
+.sandbox-back {
+  background: none;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  cursor: pointer;
+  pointer-events: all;
+  transition: color 0.2s;
+  padding: 0;
+}
+.sandbox-back:hover { color: var(--color-text); }
+
+.sandbox-label-hud {
+  font-size: var(--text-xs);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.sandbox-coords {
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  color: var(--color-faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sandbox-hud-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.9rem var(--page-pad);
+  pointer-events: none;
+  border-top: 1px solid rgba(46, 46, 46, 0.4);
+}
+
+.sandbox-count {
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+.sandbox-hint {
+  position: fixed;
+  bottom: 3.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  font-size: var(--text-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(136, 136, 136, 0.6);
+  transition: opacity 1.6s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.sandbox-hint--hidden { opacity: 0; }
+
+/* ----------------------------------------
+   The pannable world
+---------------------------------------- */
+.sandbox-world {
+  position: absolute;
+  width: 4000px;
+  height: 3000px;
+  will-change: transform;
+  transform-origin: 0 0;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+.sandbox-world--visible { opacity: 1; }
+
+/* World axis lines — faint crosshair at (WORLD_W/2, WORLD_H/2) */
+.sandbox-axis {
+  position: absolute;
+  background: rgba(46, 46, 46, 0.35);
+  pointer-events: none;
+}
+.sandbox-axis--h {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+.sandbox-axis--v {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+/* Origin dot at world center */
+.sandbox-origin-dot {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(68, 68, 68, 0.7);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Large faint "FIELD" label at world center */
+.sandbox-field-label {
+  position: absolute;
+  font-size: clamp(6rem, 14vw, 13rem);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(30, 30, 30, 0.9);
+  font-weight: normal;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* ----------------------------------------
+   Experiment fragments
+---------------------------------------- */
+.sandbox-fragment {
+  position: absolute;
+  width: 220px;
+  border: 1px dashed var(--color-border);
+  padding: 1.25rem;
+  background: rgba(12, 12, 12, 0.82);
+  transition:
+    border-color 0.35s ease,
+    background 0.35s ease,
+    box-shadow 0.35s ease;
+  cursor: default;
+  user-select: none;
+  /* Prevent fragments from being selected during drag */
+  -webkit-user-drag: none;
+}
+
+.sandbox-fragment--active {
+  border-color: rgba(136, 136, 136, 0.55);
+  background: rgba(22, 22, 22, 0.96);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+/* Large experiment index number */
+.sandbox-frag-id {
+  display: block;
+  font-size: 3.8rem;
+  line-height: 1;
+  color: rgba(46, 46, 46, 0.9);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.9rem;
+  transition: color 0.35s ease;
+}
+.sandbox-fragment--active .sandbox-frag-id {
+  color: rgba(80, 80, 80, 1);
+}
+
+/* Experiment title */
+.sandbox-frag-title {
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: normal;
+  color: var(--color-muted);
+  margin-bottom: 0.45rem;
+  transition: color 0.3s ease;
+}
+.sandbox-fragment--active .sandbox-frag-title {
+  color: var(--color-text);
+}
+
+/* Short annotation */
+.sandbox-frag-annotation {
+  font-size: 0.65rem;
+  letter-spacing: 0.03em;
+  color: rgba(68, 68, 68, 0.9);
+  line-height: 1.65;
+  transition: color 0.3s ease;
+}
+.sandbox-fragment--active .sandbox-frag-annotation {
+  color: var(--color-faint);
+}
+
+/* Tags row */
+.sandbox-frag-tags {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin-top: 0.9rem;
+}
+.sandbox-frag-tags span {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(68, 68, 68, 0.7);
+  border: 1px solid rgba(46, 46, 46, 0.55);
+  padding: 0.1rem 0.35rem;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+.sandbox-fragment--active .sandbox-frag-tags span {
+  color: var(--color-faint);
+  border-color: var(--color-border);
+}
+
+/* Detail text — revealed on hover */
+.sandbox-frag-detail {
+  font-size: 0.65rem;
+  letter-spacing: 0.03em;
+  color: var(--color-muted);
+  line-height: 1.75;
+  border-top: 1px dashed rgba(46, 46, 46, 0.6);
+  padding-top: 0.85rem;
+  margin-top: 0.85rem;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  /* Stagger: max-height animates first, then opacity fades in */
+  transition:
+    max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s ease 0.1s;
+}
+.sandbox-fragment--active .sandbox-frag-detail {
+  max-height: 180px;
+  opacity: 1;
 }

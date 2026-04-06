@@ -5,6 +5,7 @@ export default function Nav({ page }) {
         <ul>
           <li><a href="#home" className={page === "home" ? "active" : ""}>Home</a></li>
           <li><a href="#sandbox" className={page === "sandbox" ? "active" : ""}>Sandbox</a></li>
+          <li><a href="#archive" className={page === "archive" ? "active" : ""}>Archive</a></li>
           <li><a href="#about" className={page === "about" ? "active" : ""}>About</a></li>
           <li><a href="#contact" className="nav-contact">Contact</a></li>
         </ul>
