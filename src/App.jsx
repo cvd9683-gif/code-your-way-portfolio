@@ -7,6 +7,7 @@ import ForkTales from "./pages/ForkTales"
 import ClinicCatalyst from "./pages/ClinicCatalyst"
 import TraderGoes from "./pages/TraderGoes"
 import Venmo from "./pages/Venmo"
+import MotionStudies from "./pages/MotionStudies"
 import Nav from "./components/Nav"
 import PlusGridBackground from "./components/PlusGridBackground"
 import "./index.css"
@@ -36,6 +37,7 @@ export default function App() {
     "clinic-catalyst": <ClinicCatalyst navigate={navigate} />,
     "trader-goes": <TraderGoes navigate={navigate} />,
     venmo: <Venmo navigate={navigate} />,
+    "motion-studies": <MotionStudies navigate={navigate} />,
   }
 
   return (
