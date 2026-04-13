@@ -1172,3 +1172,681 @@ button.case-back:hover { opacity: 0.6; }
   max-height: 180px;
   opacity: 1;
 }
+
+/* ========================================
+   PROJECT NODES — .snode
+   Individual draggable/resizable cards.
+   overflow: hidden is KEY — it clips the
+   hover glow so it never bleeds outside.
+======================================== */
+
+.snode {
+  position: absolute;
+  background: #111213;
+  border: 1px solid rgba(46, 46, 46, 0.75);
+  border-radius: 2px;
+  overflow: hidden;            /* contains the glow */
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-drag: none;
+  display: flex;
+  flex-direction: column;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.35s ease,
+    transform 0.12s ease;     /* snappy during drag re-sort */
+}
+
+.snode--dragging {
+  cursor: grabbing;
+  border-color: rgba(120, 120, 120, 0.5);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
+  z-index: 25 !important;
+}
+
+.snode--hovered:not(.snode--dragging) {
+  border-color: rgba(100, 100, 100, 0.4);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  z-index: 5;
+}
+
+/* ── Accent bottom rule ── */
+.snode::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 4;
+  pointer-events: none;
+}
+.snode--hovered::after {
+  opacity: 0.55;
+}
+
+/* ── Contained hover glow ──
+   Follows cursor via --gx / --gy CSS vars.
+   Clipped to node bounds by overflow:hidden. */
+.snode-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle 130px at var(--gx, 50%) var(--gy, 50%),
+    rgba(255, 255, 255, 0.048) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 3;
+}
+.snode--hovered .snode-glow {
+  opacity: 1;
+}
+
+/* ── Abstract image area (top ~55%) ── */
+.snode-img {
+  flex: 0 0 55%;
+  position: relative;
+  overflow: hidden;
+}
+
+.snode-img-shape {
+  position: absolute;
+  inset: 0;
+}
+
+/* Diagonal accent line */
+.snode-img-line {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 48%,
+    rgba(255, 255, 255, 0.03) 49%,
+    rgba(255, 255, 255, 0.03) 51%,
+    transparent 52%
+  );
+  pointer-events: none;
+}
+
+.snode-img-watermark {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.65rem;
+  font-size: 0.52rem;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.06);
+  font-family: var(--font-mono);
+  user-select: none;
+}
+
+/* ── Text body ── */
+.snode-body {
+  flex: 1;
+  padding: 0.85rem 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.snode-title {
+  font-size: 0.68rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  font-weight: normal;
+  color: var(--color-muted);
+  transition: color 0.25s ease;
+}
+.snode--hovered .snode-title {
+  color: var(--color-text);
+}
+
+.snode-blurb {
+  font-size: 0.61rem;
+  letter-spacing: 0.02em;
+  color: rgba(68, 68, 68, 0.95);
+  line-height: 1.6;
+  transition: color 0.25s ease;
+}
+.snode--hovered .snode-blurb {
+  color: var(--color-faint);
+}
+
+.snode-tags {
+  display: flex;
+  gap: 0.22rem;
+  flex-wrap: wrap;
+  margin-top: 0.2rem;
+}
+.snode-tags span {
+  font-size: 0.56rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(68, 68, 68, 0.65);
+  border: 1px solid rgba(46, 46, 46, 0.55);
+  padding: 0.07rem 0.28rem;
+  transition: color 0.25s, border-color 0.25s;
+}
+.snode--hovered .snode-tags span {
+  color: rgba(140, 140, 140, 0.7);
+  border-color: rgba(60, 60, 60, 0.8);
+}
+
+/* ── Hover interaction hint ── */
+.snode-action-hint {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.65rem;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+  z-index: 5;
+  pointer-events: none;
+}
+.snode--hovered .snode-action-hint {
+  opacity: 0.65;
+}
+
+/* ── Resize handle — bottom-right corner ── */
+.snode-resize {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  cursor: nwse-resize;
+  z-index: 6;
+}
+.snode-resize::before,
+.snode-resize::after {
+  content: "";
+  position: absolute;
+  background: rgba(120, 120, 120, 0.3);
+  border-radius: 1px;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+/* Two-tick resize icon */
+.snode-resize::before {
+  bottom: 5px;
+  right: 3px;
+  width: 7px;
+  height: 1px;
+}
+.snode-resize::after {
+  bottom: 3px;
+  right: 5px;
+  width: 1px;
+  height: 7px;
+}
+.snode--hovered .snode-resize::before,
+.snode--hovered .snode-resize::after {
+  opacity: 1;
+}
+
+/* ========================================
+   MAGNETIC ALIGNMENT GUIDES
+======================================== */
+.sandbox-guide {
+  position: absolute;
+  pointer-events: none;
+  z-index: 15;
+  background: rgba(110, 200, 184, 0.45);
+}
+.sandbox-guide--h {
+  left: 0; right: 0;
+  height: 1px;
+}
+.sandbox-guide--v {
+  top: 0; bottom: 0;
+  width: 1px;
+}
+
+/* ========================================
+   EXPANDED OVERLAY (click → modal)
+======================================== */
+.snode-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.snode-overlay-panel {
+  width: min(520px, 92vw);
+  background: #111213;
+  border: 1px solid rgba(46, 46, 46, 0.9);
+  border-top: 2px solid var(--accent);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.snode-overlay-hero {
+  height: 220px;
+  position: relative;
+  overflow: hidden;
+}
+
+.snode-overlay-bg-shape {
+  position: absolute;
+  inset: 0;
+}
+
+.snode-overlay-hero-num {
+  position: absolute;
+  bottom: 0.85rem;
+  left: 1.3rem;
+  font-size: clamp(4rem, 10vw, 6rem);
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.055);
+  letter-spacing: -0.04em;
+  font-family: var(--font-mono);
+  user-select: none;
+}
+
+.snode-overlay-info {
+  padding: 1.5rem 1.8rem 2rem;
+}
+
+.snode-overlay-tags {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.85rem;
+}
+.snode-overlay-tags span {
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid rgba(128, 128, 128, 0.2);
+  padding: 0.1rem 0.4rem;
+}
+
+.snode-overlay-title {
+  font-size: var(--text-xl);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: normal;
+  color: var(--color-text);
+  margin-bottom: 0.7rem;
+  line-height: 1.2;
+}
+
+.snode-overlay-blurb {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  line-height: 1.75;
+  margin-bottom: 1.5rem;
+}
+
+.snode-overlay-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+}
+
+.snode-overlay-cta {
+  background: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.55rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.22s ease, color 0.22s ease;
+}
+.snode-overlay-cta:hover {
+  background: var(--accent);
+  color: #0e0e0e;
+}
+
+.snode-overlay-close {
+  background: none;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0;
+}
+.snode-overlay-close:hover {
+  color: var(--color-muted);
+}
+
+/* ========================================
+   SANDBOX PROJECT PAGE  — .sp-*
+   Visual case study template.
+   Artist portfolio aesthetic:
+   large type, minimal copy, color blocks.
+======================================== */
+
+.sp-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  font-family: var(--font-mono);
+  /* Override the page-frame padding */
+  margin: calc(-1 * var(--space-md)) calc(-1 * var(--page-pad));
+  padding: 0;
+  max-width: none;
+}
+
+/* Back button — appears on scroll */
+.sp-back {
+  position: fixed;
+  top: 1.3rem;
+  left: var(--page-pad);
+  z-index: 30;
+  background: none;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  cursor: pointer;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease, color 0.2s;
+}
+.sp-back--visible { opacity: 1; }
+.sp-back:hover { color: var(--color-muted); }
+
+/* ── Hero ── */
+.sp-hero {
+  position: relative;
+  height: 90vh;
+  min-height: 520px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.sp-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, #0e0e0e 0%, #181818 60%, #0a0a0a 100%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4rem;
+}
+
+.sp-hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 0 var(--page-pad) 5rem;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.sp-hero-meta {
+  display: flex;
+  gap: 1.8rem;
+  margin-bottom: 1.2rem;
+}
+.sp-hero-meta span {
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+.sp-hero-title {
+  font-size: clamp(3.5rem, 10vw, 8rem);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  font-weight: normal;
+  color: var(--color-text);
+  line-height: 0.95;
+  margin-bottom: 1.5rem;
+}
+
+.sp-hero-sub {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  max-width: 460px;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+}
+
+/* ── Shared label style ── */
+.sp-label {
+  display: block;
+  font-size: var(--text-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  margin-bottom: 1rem;
+}
+
+/* ── Overview ── */
+.sp-overview {
+  padding: 6rem var(--page-pad);
+  border-bottom: 1px solid var(--color-border);
+}
+.sp-overview-inner {
+  max-width: 680px;
+  margin: 0 auto;
+}
+.sp-overview-text {
+  font-size: clamp(1.1rem, 2.5vw, 1.55rem);
+  line-height: 1.7;
+  color: var(--color-muted);
+  letter-spacing: 0.01em;
+}
+.sp-overview-text em {
+  color: var(--color-text);
+  font-style: normal;
+}
+
+/* ── Content sections (alternating) ── */
+.sp-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 55vh;
+}
+@media (max-width: 680px) {
+  .sp-section { grid-template-columns: 1fr; }
+  .sp-section--flip .sp-section-visual { order: -1; }
+}
+
+.sp-section--flip {
+  direction: rtl;
+}
+.sp-section--flip > * { direction: ltr; }
+
+.sp-section-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+  overflow: hidden;
+  position: relative;
+}
+
+.sp-section-text {
+  padding: 4rem var(--page-pad);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-left: 1px solid var(--color-border);
+  gap: 0.5rem;
+}
+.sp-section--flip .sp-section-text {
+  border-left: none;
+  border-right: 1px solid var(--color-border);
+}
+
+.sp-section-heading {
+  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+  font-weight: normal;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+  line-height: 1.2;
+  margin-bottom: 0.8rem;
+}
+
+.sp-section-body {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  line-height: 1.8;
+  max-width: 380px;
+}
+
+/* ── Inline visuals ── */
+.sp-vis-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 160px;
+  padding: 0 2rem;
+}
+.sp-vis-bar {
+  flex: 1;
+  background: rgba(160, 160, 160, 0.15);
+  border-top: 1px solid rgba(160, 160, 160, 0.25);
+  border-radius: 1px;
+  animation: barPulse 2.4s ease-in-out infinite;
+}
+@keyframes barPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.9; }
+}
+
+.sp-vis-rings {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.sp-vis-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(136, 136, 200, 0.2);
+  animation: ringExpand 3s ease-out infinite;
+}
+@keyframes ringExpand {
+  0%   { transform: scale(0.85); opacity: 0.6; }
+  100% { transform: scale(1.12); opacity: 0; }
+}
+
+.sp-vis-curve {
+  width: 90%;
+  max-width: 480px;
+  padding: 1.5rem;
+}
+.sp-vis-curve svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── Interaction moments ── */
+.sp-moments {
+  padding: 6rem var(--page-pad);
+  border-top: 1px solid var(--color-border);
+}
+.sp-moments-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.sp-moments-heading {
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  font-weight: normal;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+  margin-bottom: 3.5rem;
+  line-height: 1.1;
+}
+.sp-moments-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+@media (max-width: 600px) {
+  .sp-moments-grid { grid-template-columns: 1fr; }
+}
+.sp-moment-card {
+  padding: 1.8rem 1.5rem;
+  border: 1px solid var(--color-border);
+  background: rgba(26, 26, 26, 0.4);
+  transition: background 0.25s;
+}
+.sp-moment-card:hover {
+  background: rgba(30, 30, 30, 0.7);
+}
+.sp-moment-num {
+  display: block;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: rgba(46, 46, 46, 0.9);
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+.sp-moment-title {
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: normal;
+  color: var(--color-muted);
+  margin-bottom: 0.55rem;
+}
+.sp-moment-note {
+  font-size: 0.65rem;
+  color: var(--color-faint);
+  line-height: 1.7;
+}
+
+/* ── Page footer ── */
+.sp-footer {
+  padding: 4rem var(--page-pad);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--color-border);
+}
+.sp-footer-back {
+  background: none;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+.sp-footer-back:hover { color: var(--color-text); }
+.sp-footer-label {
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
