@@ -1324,6 +1324,9 @@ button.case-back:hover { opacity: 0.6; }
   gap: 0.22rem;
   flex-wrap: wrap;
   margin-top: 0.2rem;
+  /* Flex items default to min-content — allow them to shrink below that. */
+  min-width: 0;
+  max-width: 100%;
 }
 .snode-tags span {
   font-size: 0.56rem;
@@ -1333,6 +1336,13 @@ button.case-back:hover { opacity: 0.6; }
   border: 1px solid rgba(46, 46, 46, 0.55);
   padding: 0.07rem 0.28rem;
   transition: color 0.25s, border-color 0.25s;
+  /* Long labels wrap inside their own pill instead of forcing overflow. */
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.2;
 }
 .snode--hovered .snode-tags span {
   color: rgba(140, 140, 140, 0.7);
@@ -1850,3 +1860,2029 @@ button.case-back:hover { opacity: 0.6; }
   color: var(--color-faint);
 }
 
+/* ================================================================
+   SANDBOX v2 — multi-mode layout system
+   Additions only; existing .snode / .sandbox-* styles still apply.
+================================================================ */
+
+/* ---------- Container + background ---------- */
+.sb-container {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  overflow: hidden;
+  background: rgba(14, 14, 14, 0.97);
+  font-family: var(--font-mono);
+  /* dot grid — fades out in stack mode for catalog cleanliness */
+  background-image:
+    radial-gradient(circle, rgba(46, 46, 46, 0.55) 1px, transparent 1px),
+    linear-gradient(rgba(30, 30, 30, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 30, 30, 0.18) 1px, transparent 1px);
+  background-size: 48px 48px, 240px 240px, 240px 240px;
+  transition: background-size 0.5s ease, background-image 0.5s ease;
+}
+.sb-container--grid {
+  background-image:
+    linear-gradient(rgba(30, 30, 30, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 30, 30, 0.12) 1px, transparent 1px);
+  background-size: 240px 240px, 240px 240px;
+}
+
+/* Grid mode allows vertical scroll if rows exceed viewport */
+.sb-container--grid {
+  overflow-y: auto;
+}
+
+/* ---------- Stage + pan wrapper (card host) ---------- */
+/* Stage is pointer-events:none so clicks pass through to the container
+   background (for canvas panning) unless they hit a card. */
+.sb-stage {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.sb-pan-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+.sb-stage .sb-card-wrap {
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+/* Canvas panning cursor */
+.sb-container--freeform {
+  cursor: grab;
+}
+.sb-container--freeform.sb-container--panning {
+  cursor: grabbing;
+}
+/* Interactive surfaces inside freeform should show their own cursors */
+.sb-container--freeform .sb-card-wrap,
+.sb-container--freeform .sb-switcher,
+.sb-container--freeform .sandbox-back,
+.sb-container--freeform .sb-resize,
+.sb-container--freeform .sb-preview {
+  cursor: auto;
+}
+
+/* Make the inner card fill its motion wrapper */
+.snode--card {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Freeform: responsive card content (container queries) ---------- */
+/* The .snode--fluid flag opts the card into size-based responsiveness so
+   title/blurb/tags/hero all scale with the card dimensions as it resizes. */
+.snode--fluid {
+  container-type: size;
+  container-name: sbcard;
+}
+@container sbcard (min-width: 0) {
+  .snode--fluid .snode-img {
+    flex: 0 0 clamp(64px, 42cqh, 200px);
+  }
+  .snode--fluid .snode-body {
+    padding: clamp(0.5rem, 4cqh, 1rem)
+      clamp(0.55rem, 4.5cqw, 1.1rem)
+      clamp(0.45rem, 3.5cqh, 0.9rem);
+    gap: clamp(0.15rem, 1.5cqh, 0.4rem);
+  }
+  .snode--fluid .snode-title {
+    font-size: clamp(0.58rem, 4.2cqw, 0.88rem);
+    letter-spacing: 0.12em;
+    line-height: 1.2;
+  }
+  .snode--fluid .snode-blurb {
+    font-size: clamp(0.55rem, 3.6cqw, 0.72rem);
+    line-height: 1.55;
+  }
+  .snode--fluid .snode-tags {
+    gap: clamp(0.12rem, 1cqw, 0.3rem);
+    margin-top: clamp(0.1rem, 1cqh, 0.3rem);
+  }
+  .snode--fluid .snode-tags span {
+    font-size: clamp(0.48rem, 2.6cqw, 0.6rem);
+    padding: 0.06rem clamp(0.18rem, 1.4cqw, 0.4rem);
+    letter-spacing: 0.08em;
+  }
+  .snode--fluid .snode-img-watermark {
+    font-size: clamp(0.42rem, 2.4cqw, 0.6rem);
+  }
+}
+/* At small card sizes, collapse secondary content so the card stays legible. */
+@container sbcard (max-height: 220px) {
+  .snode--fluid .snode-blurb {
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+@container sbcard (max-height: 180px) {
+  .snode--fluid .snode-blurb {
+    display: none;
+  }
+}
+@container sbcard (max-height: 150px) {
+  .snode--fluid .snode-tags {
+    display: none;
+  }
+}
+@container sbcard (max-width: 200px) {
+  .snode--fluid .snode-blurb {
+    display: none;
+  }
+}
+/* Fallback for browsers without container-type: size support */
+@supports not (container-type: size) {
+  .snode--fluid .snode-blurb {
+    -webkit-line-clamp: 3;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* ---------- Card visual states (driven by Node mode) ---------- */
+.snode--dim {
+  filter: grayscale(0.6) brightness(0.65);
+}
+.snode--match {
+  border-color: rgba(140, 140, 140, 0.55);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.55);
+}
+.snode--active {
+  border-color: rgba(200, 220, 240, 0.75);
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(200, 220, 240, 0.15);
+}
+.snode--active::after {
+  opacity: 0.85 !important;
+}
+
+/* ---------- Layout switcher (segmented pill) ---------- */
+.sb-switcher {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 4px;
+  border: 1px solid rgba(60, 60, 60, 0.75);
+  background: rgba(18, 18, 18, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 999px;
+  pointer-events: all;
+  z-index: 22;
+}
+.sb-switcher__item {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 0.42rem 0.95rem;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(120, 120, 120, 0.75);
+  transition: color 0.25s ease;
+  border-radius: 999px;
+}
+.sb-switcher__item:hover {
+  color: var(--color-text);
+}
+.sb-switcher__item--active {
+  color: var(--color-bg);
+}
+.sb-switcher__indicator {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--color-text);
+  z-index: 0;
+}
+.sb-switcher__label {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- HUD tweaks ---------- */
+.sb-container .sandbox-hud-top {
+  padding-top: 1.15rem;
+  padding-bottom: 1.15rem;
+}
+.sb-mode-desc {
+  font-size: var(--text-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(100, 100, 100, 0.75);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.sb-hud-meta {
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(200, 220, 240, 0.7);
+}
+
+/* ---------- Freeform intro (lives inside the pan-wrap) ---------- */
+.sb-intro-anchor {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  user-select: none;
+}
+.sb-intro {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: min(680px, 92vw);
+  text-align: center;
+  font-family: var(--font-mono);
+  color: rgba(150, 150, 150, 0.9);
+}
+.sb-intro__title {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+}
+.sb-intro__letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(46px, 5.6vw, 72px);
+  height: clamp(58px, 6.8vw, 86px);
+  border: 1px solid rgba(110, 110, 110, 0.55);
+  background: rgba(18, 18, 18, 0.55);
+  color: rgba(225, 225, 225, 0.9);
+  font-family: var(--font-mono);
+  font-size: clamp(1.15rem, 1.85vw, 1.75rem);
+  letter-spacing: 0;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.sb-intro__blurb {
+  margin: 1.6rem auto 0;
+  font-size: clamp(0.82rem, 1.15vw, 0.98rem);
+  letter-spacing: 0.07em;
+  line-height: 1.7;
+  color: rgba(160, 160, 160, 0.85);
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.24rem;
+}
+.sb-intro__line {
+  display: block;
+}
+
+/* ---------- Node mode: cable layer ---------- */
+/* Cables sit above the bank (12) so they're visible crossing the rail,
+   but below Reveal (20) so they terminate inside it cleanly. */
+.sb-node-cords-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 19;
+}
+.sb-node-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+/* Stage sits between cords and chips */
+.sb-stage {
+  z-index: 2;
+}
+.sb-node-hint {
+  position: absolute;
+  bottom: 5.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--text-xs);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(136, 136, 136, 0.55);
+  pointer-events: none;
+}
+
+/* ================================================================
+   SANDBOX v3 ADDITIONS — freeform tools, preview, node patchboard
+================================================================ */
+
+/* ---------- Freeform: resize corner ---------- */
+.sb-resize {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  cursor: nwse-resize;
+  z-index: 6;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.sb-resize::before,
+.sb-resize::after {
+  content: "";
+  position: absolute;
+  background: rgba(160, 160, 160, 0.5);
+  border-radius: 1px;
+}
+.sb-resize::before {
+  bottom: 5px;
+  right: 3px;
+  width: 8px;
+  height: 1px;
+}
+.sb-resize::after {
+  bottom: 3px;
+  right: 5px;
+  width: 1px;
+  height: 8px;
+}
+.sb-container--freeform .sb-card-wrap:hover .sb-resize,
+.sb-container--freeform .sb-resize:hover {
+  opacity: 1;
+}
+.sb-container--freeform .sb-card-wrap {
+  cursor: grab;
+}
+.sb-container--freeform .sb-card-wrap:active {
+  cursor: grabbing;
+}
+
+/* ---------- Full-screen overlay preview ---------- */
+/* Backdrop covers the whole viewport, canvas remains faintly visible
+   through a translucent blur. Clicking the backdrop dismisses the
+   overlay; the content panel stops propagation so clicks inside don't. */
+.sb-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem clamp(1rem, 5vw, 4rem);
+  background: rgba(6, 6, 8, 0.62);
+  backdrop-filter: blur(6px) saturate(1.1);
+  -webkit-backdrop-filter: blur(6px) saturate(1.1);
+  cursor: pointer;
+}
+.sb-overlay__panel {
+  position: relative;
+  width: min(960px, 100%);
+  max-height: calc(100vh - 7rem);
+  display: flex;
+  flex-direction: column;
+  background: #111213;
+  border: 1px solid rgba(70, 70, 70, 0.8);
+  border-radius: 3px;
+  overflow: hidden;
+  cursor: auto;
+  box-shadow:
+    0 40px 90px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+}
+.sb-overlay__hero {
+  position: relative;
+  flex: 0 0 clamp(180px, 32vh, 320px);
+  overflow: hidden;
+  border-bottom: 2px solid var(--accent);
+}
+.sb-overlay__shape {
+  position: absolute;
+  inset: 0;
+}
+.sb-overlay__hero-line {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 48%,
+    rgba(255, 255, 255, 0.045) 49%,
+    rgba(255, 255, 255, 0.045) 51%,
+    transparent 52%
+  );
+  pointer-events: none;
+}
+.sb-overlay__id {
+  position: absolute;
+  bottom: 1.1rem;
+  left: 1.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.28em;
+  color: rgba(255, 255, 255, 0.28);
+  user-select: none;
+}
+.sb-overlay__close {
+  position: absolute;
+  top: 0.9rem;
+  right: 1rem;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(110, 110, 110, 0.7);
+  border-radius: 50%;
+  color: rgba(235, 235, 235, 0.95);
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s, border-color 0.2s, transform 0.2s;
+}
+.sb-overlay__close:hover {
+  color: #fff;
+  background: rgba(40, 40, 40, 0.9);
+  border-color: rgba(200, 200, 200, 0.85);
+  transform: rotate(90deg);
+}
+.sb-overlay__body {
+  flex: 1;
+  min-height: 0;
+  padding: clamp(1rem, 2.4vw, 1.75rem) clamp(1.2rem, 3vw, 2.25rem)
+    clamp(1.2rem, 2.6vw, 1.85rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  overflow-y: auto;
+}
+.sb-overlay__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+.sb-overlay__kicker {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+.sb-overlay__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.sb-overlay__tags span {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid rgba(120, 120, 120, 0.35);
+  padding: 0.14rem 0.55rem;
+  border-radius: 2px;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.sb-overlay__title {
+  margin: 0;
+  font-size: clamp(1.4rem, 3.2vw, 2.2rem);
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  font-weight: normal;
+  color: var(--color-text);
+}
+.sb-overlay__blurb {
+  margin: 0;
+  font-size: clamp(0.82rem, 1.3vw, 1rem);
+  line-height: 1.65;
+  color: var(--color-muted);
+  max-width: 62ch;
+}
+.sb-overlay__actions {
+  margin-top: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+.sb-overlay__more {
+  background: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.65rem 1.2rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.sb-overlay__more:hover {
+  background: var(--accent);
+  color: #0e0e0e;
+  transform: translateX(2px);
+}
+.sb-overlay__more--disabled {
+  border-color: rgba(80, 80, 80, 0.5);
+  color: var(--color-faint);
+  cursor: default;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.65rem 1.2rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.sb-overlay__more--disabled:hover {
+  background: none;
+  color: var(--color-faint);
+  transform: none;
+}
+.sb-overlay__back {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0.3rem 0.2rem;
+  transition: color 0.2s ease;
+}
+.sb-overlay__back:hover {
+  color: var(--color-text);
+}
+
+/* ---------- Node: word bank (left rail) ---------- */
+.sb-bank-layer {
+  position: absolute;
+  top: 72px;
+  bottom: 56px;
+  left: 0;
+  width: 200px;
+  z-index: 12;
+  padding: 0.75rem 0.75rem 0.75rem 1rem;
+  pointer-events: none;
+}
+.sb-bank {
+  pointer-events: all;
+  height: 100%;
+  border-right: 1px solid rgba(46, 46, 46, 0.6);
+  padding-right: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.sb-bank__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.25rem 0.1rem 0.4rem;
+  border-bottom: 1px dashed rgba(46, 46, 46, 0.7);
+}
+.sb-bank__label {
+  font-size: var(--text-xs);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.sb-bank__hint {
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+/* Tag chips — compact, pill-shaped, each with its own outlet port */
+.sb-bank__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  overflow-y: auto;
+}
+/* Pill chip: label + outlet port on the right.
+   Only the port is the drag handle; the body itself is not draggable. */
+.sb-bank__item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.4rem 0.55rem 0.4rem 0.85rem;
+  background: rgba(22, 22, 26, 0.72);
+  border: 1px solid rgba(70, 72, 80, 0.6);
+  border-radius: 999px;
+  color: rgba(180, 182, 190, 0.92);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+  cursor: default;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+.sb-bank__item:hover {
+  color: var(--color-text);
+  background: rgba(34, 34, 38, 0.92);
+  border-color: rgba(130, 135, 145, 0.85);
+  transform: translateX(2px);
+}
+.sb-bank__word {
+  flex: 1;
+  padding-right: 0.2rem;
+}
+/* Outlet port — visually attached, the only drag surface */
+.sb-bank__port {
+  flex-shrink: 0;
+  display: block;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: rgba(110, 110, 120, 0.55);
+  border: 1px solid rgba(140, 140, 150, 0.55);
+  cursor: grab;
+  touch-action: none;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+}
+.sb-bank__port:active {
+  cursor: grabbing;
+  transform: scale(0.92);
+}
+.sb-bank__item:hover .sb-bank__port,
+.sb-bank__port:hover {
+  background: rgba(220, 230, 240, 0.95);
+  border-color: rgba(230, 240, 250, 1);
+  transform: scale(1.18);
+  box-shadow: 0 0 0 4px rgba(200, 220, 240, 0.14);
+}
+/* Lit port — this word is wired into Reveal (no drag on live ports) */
+.sb-bank__port--live {
+  background: rgba(220, 230, 240, 0.95);
+  border-color: rgba(230, 240, 250, 1);
+  cursor: default;
+  box-shadow: 0 0 0 3px rgba(200, 220, 240, 0.18);
+}
+.sb-bank__item--active .sb-bank__port--live:hover {
+  transform: none;
+}
+/* × disconnect — visible on active tags */
+.sb-bank__disconnect {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  color: rgba(180, 185, 195, 0.75);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.sb-bank__disconnect:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+.sb-bank__item--active {
+  color: rgba(230, 235, 240, 0.98);
+  background: rgba(32, 34, 40, 0.96);
+  border-color: rgba(200, 220, 240, 0.55);
+}
+.sb-bank__item--active:hover {
+  background: rgba(40, 42, 50, 1);
+  border-color: rgba(210, 225, 240, 0.75);
+}
+
+/* ---------- Node: placed word blocks ---------- */
+.sb-node-placed-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
+}
+.sb-placed-layer {
+  position: absolute;
+  inset: 0;
+}
+.sb-placed-anchor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  will-change: transform;
+}
+.sb-placed-anchor:active {
+  cursor: grabbing;
+}
+.sb-placed-center {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+.sb-placed {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  padding: 0;
+  background: rgba(22, 22, 22, 0.92);
+  border: 1px solid rgba(120, 120, 120, 0.55);
+  border-radius: 3px;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  user-select: none;
+  /* Make room on the right for the port (handle sits outside the box) */
+  margin-right: 8px;
+}
+/* Body handle = move-only zone. This is the ONLY surface that
+   initiates a drag (wired via useDragControls.start). */
+.sb-placed__body {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.48rem 1.1rem 0.48rem 0.75rem;
+  cursor: grab;
+  touch-action: none;
+}
+.sb-placed__body:active {
+  cursor: grabbing;
+}
+.sb-placed__grip {
+  display: inline-block;
+  color: rgba(140, 140, 140, 0.55);
+  font-size: 0.82rem;
+  letter-spacing: -0.05em;
+  line-height: 0.7;
+  transform: translateY(-1px);
+  transition: color 0.2s ease;
+}
+.sb-placed:hover .sb-placed__grip {
+  color: rgba(200, 200, 200, 0.9);
+}
+.sb-placed--pending {
+  border-color: rgba(230, 235, 240, 0.9);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.5),
+    0 0 0 3px rgba(200, 220, 240, 0.12);
+}
+.sb-placed__label {
+  font-variant-numeric: tabular-nums;
+}
+/* remove button — top-right corner of the block */
+.sb-placed__remove {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  background: #1a1a1a;
+  border: 1px solid rgba(120, 120, 120, 0.6);
+  border-radius: 50%;
+  color: rgba(200, 200, 200, 0.9);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+}
+.sb-placed-anchor:hover .sb-placed__remove,
+.sb-placed--pending .sb-placed__remove {
+  opacity: 1;
+}
+.sb-placed__remove:hover {
+  color: #fff;
+  border-color: rgba(200, 200, 200, 0.9);
+}
+/* connection port — dot on the right edge of a placed word block.
+   Slightly larger than the pure-visual version so it's easier to grab. */
+.sb-port {
+  position: absolute;
+  top: 50%;
+  right: -8px;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #0e0e0e;
+  border: 1.5px solid rgba(180, 180, 180, 0.8);
+  padding: 0;
+  cursor: crosshair;
+  touch-action: none;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s,
+    transform 0.2s;
+}
+.sb-port:hover {
+  background: rgba(200, 220, 240, 0.3);
+  border-color: rgba(230, 235, 240, 0.95);
+  transform: translateY(-50%) scale(1.15);
+}
+.sb-port--active {
+  background: rgba(230, 235, 240, 0.95);
+  border-color: rgba(230, 235, 240, 1);
+  box-shadow: 0 0 0 4px rgba(200, 220, 240, 0.18);
+}
+/* Target port (the one currently under the patch-drag cursor) */
+.sb-port--target {
+  background: rgba(140, 220, 180, 0.9);
+  border-color: rgba(180, 240, 210, 1);
+  box-shadow: 0 0 0 5px rgba(140, 220, 180, 0.2);
+  transform: translateY(-50%) scale(1.2);
+}
+/* Live port — this word is wired into Out */
+.sb-port--live {
+  background: rgba(230, 235, 240, 0.9);
+  border-color: rgba(230, 235, 240, 1);
+  box-shadow: 0 0 0 3px rgba(200, 220, 240, 0.18);
+}
+.sb-placed--target {
+  border-color: rgba(180, 240, 210, 0.9);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.5),
+    0 0 0 3px rgba(140, 220, 180, 0.15);
+}
+/* Active placed word — reachable from Out via the connection graph */
+.sb-placed--active {
+  border-color: rgba(230, 235, 240, 0.85);
+  color: #fff;
+  background: rgba(32, 32, 32, 0.94);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(200, 220, 240, 0.18);
+}
+
+/* ---------- Active word tags (simplified Node mode) ---------- */
+/* Fixed positions fanned to the left of Reveal. Each tag is a small
+   inline chip with an × to disconnect. No drag, no port. */
+.sb-node-active-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
+}
+.sb-active-layer {
+  position: absolute;
+  inset: 0;
+}
+.sb-active {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.44rem 0.85rem 0.44rem 0.7rem;
+  background: rgba(24, 24, 26, 0.96);
+  border: 1px solid rgba(200, 220, 240, 0.45);
+  border-radius: 999px;
+  color: rgba(225, 230, 235, 0.92);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+  white-space: nowrap;
+  pointer-events: auto;
+  user-select: none;
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(200, 220, 240, 0.1);
+  transform-origin: center center;
+}
+.sb-active__label {
+  font-variant-numeric: tabular-nums;
+}
+.sb-active__remove {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin-right: -0.2rem;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  color: rgba(180, 180, 180, 0.7);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+.sb-active__remove:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+.sb-active--snap {
+  animation: sb-snap 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ── Snap bounce — fires on the target node when a patch commits ── */
+@keyframes sb-snap {
+  0%   { transform: scale(1); }
+  28%  { transform: scale(1.085); }
+  58%  { transform: scale(0.975); }
+  82%  { transform: scale(1.018); }
+  100% { transform: scale(1); }
+}
+.sb-placed--snap {
+  animation: sb-snap 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-origin: center center;
+}
+.sb-out--snap {
+  animation: sb-snap 0.48s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-origin: center center;
+}
+
+/* ---------- Reveal (fixed destination, straddles boundary) ---------- */
+/* Reveal sits ABOVE both the workspace and the panel (z 20), so it
+   reads as a bridge between the two. Two-way shadow — both the
+   workspace side and the panel side feel lifted. */
+.sb-out-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+.sb-out {
+  position: absolute;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.85rem 0 1.4rem;
+  background: rgba(18, 18, 22, 0.96);
+  border: 1.5px solid rgba(150, 150, 160, 0.65);
+  border-radius: 10px;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  box-shadow:
+    0 26px 64px rgba(0, 0, 0, 0.7),
+    0 6px 18px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.025) inset;
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease,
+    background 0.3s ease,
+    box-shadow 0.35s ease,
+    transform 0.35s ease;
+}
+.sb-out__body {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding-left: 0.25rem;
+}
+.sb-out__label {
+  font-size: 0.95rem;
+  letter-spacing: 0.3em;
+  color: var(--color-text);
+}
+.sb-out__count {
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  color: var(--color-faint);
+}
+.sb-out--live {
+  border-color: rgba(230, 235, 240, 0.95);
+  background: rgba(22, 24, 28, 0.98);
+  /* Subtle bloom downward to cue the emergence zone */
+  box-shadow:
+    0 32px 72px rgba(0, 0, 0, 0.72),
+    0 10px 22px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(200, 220, 240, 0.2),
+    0 18px 60px rgba(200, 220, 240, 0.08);
+}
+.sb-out--live .sb-out__count {
+  color: rgba(200, 220, 240, 0.85);
+}
+.sb-out--target {
+  border-color: rgba(180, 240, 210, 0.95);
+  box-shadow:
+    0 14px 36px rgba(0, 0, 0, 0.6),
+    0 0 0 3px rgba(140, 220, 180, 0.18);
+}
+/* Port on reveal's LEFT edge — facing the word nodes in the middle workspace */
+.sb-out__port {
+  position: absolute;
+  top: 50%;
+  left: -9px;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0e0e0e;
+  border: 1.5px solid rgba(200, 200, 200, 0.9);
+  cursor: crosshair;
+  touch-action: none;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
+}
+.sb-out__port:hover {
+  background: rgba(200, 220, 240, 0.3);
+  border-color: rgba(230, 235, 240, 0.95);
+  transform: translateY(-50%) scale(1.15);
+}
+.sb-out__port.sb-port--active {
+  background: rgba(230, 235, 240, 0.95);
+  border-color: rgba(230, 235, 240, 1);
+  box-shadow: 0 0 0 5px rgba(200, 220, 240, 0.18);
+}
+.sb-out__port.sb-port--target {
+  background: rgba(140, 220, 180, 0.9);
+  border-color: rgba(180, 240, 210, 1);
+  box-shadow: 0 0 0 6px rgba(140, 220, 180, 0.22);
+  transform: translateY(-50%) scale(1.2);
+}
+.sb-out--live .sb-out__port {
+  background: rgba(230, 235, 240, 0.95);
+  border-color: rgba(230, 235, 240, 1);
+  box-shadow: 0 0 0 4px rgba(200, 220, 240, 0.18);
+}
+
+/* ---------- Node mode: project cards sit away from bank rail ---------- */
+.sb-container--node .sb-stage {
+  left: 0;
+}
+
+/* Hint text — sits toward the bottom of the workspace, horizontally
+   centered between the bank and the right results panel */
+.sb-node-placed-layer .sb-node-hint {
+  position: absolute;
+  bottom: 4.5rem;
+  left: calc(220px + (100% - 220px - 520px) / 2);
+  transform: translateX(-50%);
+  font-size: var(--text-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(136, 136, 136, 0.55);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ---------- Node: editorial blurb ---------- */
+/* Centered above Reveal. Three-part layout: small kicker (underlined
+   hairline), confident main line, soft secondary. */
+.sb-howto {
+  position: absolute;
+  top: 82px;
+  /* Center in the workspace (bank on the left, open canvas to the right) */
+  left: calc(200px + (100% - 200px) / 2);
+  transform: translateX(-50%);
+  z-index: 14;
+  pointer-events: none;
+  max-width: 540px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.5s ease;
+}
+.sb-howto__kicker {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(150, 160, 170, 0.7);
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgba(130, 135, 145, 0.3);
+  min-width: 140px;
+}
+.sb-howto__main {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(0.92rem, 1.25vw, 1.08rem);
+  font-weight: normal;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  color: rgba(230, 232, 238, 0.98);
+}
+.sb-howto__sub {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+  color: rgba(160, 165, 175, 0.85);
+}
+.sb-howto--quiet {
+  opacity: 0.4;
+}
+
+/* ---------- Node: Reveal container (middle) ---------- */
+/* Positioned via CSS in the center of the workspace (between bank
+   220 and panel 520). Holds active concept chips inside. */
+.sb-reveal-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 18;
+}
+.sb-reveal {
+  position: absolute;
+  top: 50%;
+  left: calc(220px + (100% - 220px - 520px) / 2);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  width: clamp(260px, 28vw, 340px);
+  padding: 1rem 1.1rem 1.05rem;
+  background: rgba(20, 22, 26, 0.94);
+  border: 1px solid rgba(130, 135, 145, 0.55);
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  box-shadow:
+    0 22px 48px rgba(0, 0, 0, 0.62),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  transition:
+    border-color 0.3s ease,
+    background 0.3s ease,
+    box-shadow 0.3s ease;
+}
+.sb-reveal--live {
+  border-color: rgba(200, 220, 240, 0.7);
+  background: rgba(24, 26, 32, 0.97);
+  box-shadow:
+    0 26px 56px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(200, 220, 240, 0.12) inset;
+}
+.sb-reveal__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px dashed rgba(100, 105, 115, 0.35);
+}
+.sb-reveal__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(230, 232, 238, 0.95);
+}
+.sb-reveal__sub {
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(150, 155, 165, 0.75);
+}
+.sb-reveal--live .sb-reveal__sub {
+  color: rgba(200, 220, 240, 0.85);
+}
+.sb-reveal__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  min-height: 2rem;
+  align-items: center;
+}
+.sb-reveal__empty {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  line-height: 1.5;
+  color: rgba(140, 145, 155, 0.6);
+  font-style: italic;
+}
+.sb-reveal__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.55rem 0.35rem 0.7rem;
+  background: rgba(36, 38, 44, 0.94);
+  border: 1px solid rgba(200, 220, 240, 0.45);
+  border-radius: 999px;
+  color: rgba(225, 230, 238, 0.95);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 0 0 1px rgba(200, 220, 240, 0.08) inset;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+.sb-reveal__tag:hover {
+  background: rgba(48, 52, 60, 0.98);
+  border-color: rgba(220, 235, 250, 0.8);
+  transform: translateY(-1px);
+}
+.sb-reveal__tag-label {
+  font-variant-numeric: tabular-nums;
+}
+.sb-reveal__x {
+  font-size: 0.95rem;
+  line-height: 0.8;
+  color: rgba(170, 180, 190, 0.65);
+  transition: color 0.2s ease;
+}
+.sb-reveal__tag:hover .sb-reveal__x {
+  color: #fff;
+}
+@keyframes sb-reveal-snap {
+  0%   { transform: translate(-50%, -50%) scale(1); }
+  28%  { transform: translate(-50%, -50%) scale(1.04); }
+  58%  { transform: translate(-50%, -50%) scale(0.986); }
+  82%  { transform: translate(-50%, -50%) scale(1.012); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+.sb-reveal--snap {
+  animation: sb-reveal-snap 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-origin: center center;
+}
+
+/* ---------- Node: right results panel (framing only) ---------- */
+/* The panel is a visual frame; result cards themselves are positioned
+   by the shared card stage and land inside this frame. */
+.sb-panel {
+  position: absolute;
+  top: 72px;
+  bottom: 56px;
+  right: 0;
+  width: 520px;
+  z-index: 2;
+  padding: 1.25rem 1.25rem 1rem;
+  border-left: 1px solid rgba(60, 60, 60, 0.75);
+  background: linear-gradient(
+    to right,
+    rgba(22, 22, 26, 0.35) 0%,
+    rgba(18, 18, 22, 0.55) 100%
+  );
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.sb-panel--live {
+  background: linear-gradient(
+    to right,
+    rgba(26, 28, 32, 0.55) 0%,
+    rgba(20, 22, 26, 0.7) 100%
+  );
+  border-left-color: rgba(110, 130, 150, 0.45);
+}
+.sb-panel__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px dashed rgba(60, 60, 60, 0.7);
+}
+.sb-panel__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(210, 215, 220, 0.9);
+}
+.sb-panel__sub {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+.sb-panel--live .sb-panel__sub {
+  color: rgba(200, 220, 240, 0.85);
+}
+.sb-panel__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding-top: 0.5rem;
+}
+.sb-panel__empty-line {
+  width: 38px;
+  height: 1px;
+  background: rgba(120, 120, 120, 0.35);
+}
+.sb-panel__empty-hint {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  line-height: 1.6;
+  color: rgba(120, 120, 120, 0.55);
+  max-width: 220px;
+}
+.sb-results {
+  pointer-events: all;
+  height: 100%;
+  border-left: 1px solid rgba(46, 46, 46, 0.6);
+  padding-left: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.sb-results__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.25rem 0.1rem 0.5rem;
+  border-bottom: 1px dashed rgba(46, 46, 46, 0.7);
+}
+.sb-results__label {
+  font-size: var(--text-xs);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.sb-results__sub {
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+.sb-results__empty {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.2rem;
+}
+.sb-results__empty-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(100, 100, 100, 0.3);
+  animation: sb-dot-pulse 1.6s ease-in-out infinite;
+}
+.sb-results__empty-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.sb-results__empty-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes sb-dot-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.3); }
+}
+
+/* ================================================================
+   NODE MODE: VISUAL HIERARCHY — PROJECTS AS PAYOFF
+================================================================ */
+
+/* Slight push of the result cards so they read as "the product."
+   Hover lifts them a touch and emphasizes the accent rule. */
+.sb-container--node .sb-card-wrap {
+  cursor: pointer;
+  transition: filter 0.3s ease;
+}
+.sb-container--node .sb-card-wrap:hover {
+  filter: brightness(1.04);
+  z-index: 6;
+}
+.sb-container--node .snode--active {
+  border-color: rgba(200, 220, 240, 0.55);
+  /* Result cards now sit INSIDE the panel — overlap is on Reveal, not
+     the cards. Keep a soft, mostly-vertical shadow for elevation. */
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(200, 220, 240, 0.12);
+}
+.sb-container--node .snode--active::after {
+  opacity: 1 !important;
+  height: 3px;
+}
+.sb-container--node .snode--card {
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+}
+
+/* Keep the bank fully visible in the open canvas; don't dim it when
+   live (the emergence animation already pulls the eye to Reveal). */
+
+/* ================================================================
+   MINI PREVIEW — Node mode's small anchored preview
+================================================================ */
+.sb-mini {
+  position: absolute;
+  z-index: 42;
+  background: #111213;
+  border: 1px solid rgba(70, 70, 70, 0.85);
+  border-top: 2px solid var(--accent);
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.sb-mini__hero {
+  position: relative;
+  flex: 0 0 104px;
+  overflow: hidden;
+}
+.sb-mini__shape {
+  position: absolute;
+  inset: 0;
+}
+.sb-mini__id {
+  position: absolute;
+  bottom: 0.55rem;
+  left: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.24em;
+  color: rgba(255, 255, 255, 0.25);
+}
+.sb-mini__close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.55rem;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(100, 100, 100, 0.7);
+  border-radius: 50%;
+  color: rgba(230, 230, 230, 0.9);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s, border-color 0.2s,
+    transform 0.2s;
+}
+.sb-mini__close:hover {
+  color: #fff;
+  background: rgba(35, 35, 35, 0.85);
+  border-color: rgba(180, 180, 180, 0.85);
+  transform: rotate(90deg);
+}
+.sb-mini__body {
+  flex: 1;
+  padding: 0.85rem 1rem 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 0;
+}
+.sb-mini__title {
+  margin: 0;
+  font-size: 0.92rem;
+  letter-spacing: 0.07em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  font-weight: normal;
+  color: var(--color-text);
+}
+.sb-mini__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+}
+.sb-mini__tags span {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid rgba(120, 120, 120, 0.3);
+  padding: 0.1rem 0.4rem;
+  border-radius: 2px;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.sb-mini__blurb {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: var(--color-muted);
+  flex: 1;
+  overflow-y: auto;
+}
+.sb-mini__actions {
+  display: flex;
+  align-items: center;
+  margin-top: 0.1rem;
+}
+.sb-mini__more {
+  background: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.5rem 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.sb-mini__more:hover {
+  background: var(--accent);
+  color: #0e0e0e;
+  transform: translateX(2px);
+}
+.sb-mini__more--disabled {
+  border: 1px solid rgba(80, 80, 80, 0.5);
+  color: var(--color-faint);
+  cursor: default;
+  padding: 0.5rem 0.95rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ================================================================
+   CENTRAL BLOOM — Flora-inspired Node interaction
+================================================================ */
+
+/* Root layer: contains seed, orbs, and emerging project bloom. */
+.sb-bloom-root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+.sb-bloom-layer {
+  position: absolute;
+  inset: 0;
+}
+
+/* Ambient soft glow behind the seed */
+.sb-bloom-glow {
+  position: absolute;
+  width: 640px;
+  height: 640px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    rgba(200, 220, 240, 0.06) 0%,
+    rgba(180, 200, 220, 0.028) 35%,
+    transparent 62%
+  );
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0.8;
+  transition: opacity 0.6s ease;
+}
+.sb-bloom-glow--live {
+  opacity: 1.25;
+}
+
+/* -------- Concept orb (floating draggable word) ---------------- */
+.sb-orb-anchor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: auto;
+  touch-action: none;
+  will-change: transform;
+  z-index: 14;
+}
+.sb-orb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  padding: 0.55rem 1.05rem;
+  background: rgba(24, 24, 28, 0.72);
+  border: 1px solid rgba(120, 120, 130, 0.55);
+  border-radius: 999px;
+  color: rgba(210, 215, 225, 0.95);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  white-space: nowrap;
+  user-select: none;
+  cursor: grab;
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.3s ease;
+}
+.sb-orb-anchor:hover .sb-orb {
+  background: rgba(34, 34, 40, 0.9);
+  border-color: rgba(190, 205, 220, 0.85);
+  color: #fff;
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(200, 220, 240, 0.1) inset;
+}
+.sb-orb-anchor:active .sb-orb {
+  cursor: grabbing;
+}
+
+/* -------- Seed (central hub) ---------------------------------- */
+.sb-seed {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: auto;
+  background: radial-gradient(
+    circle at 50% 45%,
+    rgba(44, 46, 54, 0.96) 0%,
+    rgba(20, 22, 28, 0.98) 65%,
+    rgba(14, 15, 20, 1) 100%
+  );
+  border: 1px solid rgba(140, 145, 155, 0.55);
+  box-shadow:
+    0 26px 72px rgba(0, 0, 0, 0.72),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+    0 -10px 28px rgba(200, 220, 240, 0.03) inset;
+  color: rgba(220, 225, 235, 0.95);
+  font-family: var(--font-mono);
+  text-transform: lowercase;
+  z-index: 20;
+  transition:
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+.sb-seed__ring {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 1px dashed rgba(150, 160, 175, 0.22);
+  pointer-events: none;
+  animation: sb-seed-ring-rotate 60s linear infinite;
+}
+@keyframes sb-seed-ring-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.sb-seed__core {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  pointer-events: none;
+  padding: 0.6rem;
+  text-align: center;
+}
+.sb-seed__kicker {
+  font-size: 0.54rem;
+  letter-spacing: 0.28em;
+  color: rgba(180, 190, 200, 0.65);
+}
+.sb-seed__label {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: rgba(220, 225, 235, 0.92);
+}
+.sb-seed--live {
+  border-color: rgba(200, 220, 240, 0.78);
+  box-shadow:
+    0 32px 90px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(200, 220, 240, 0.14) inset,
+    0 0 60px rgba(200, 220, 240, 0.08);
+}
+.sb-seed--live .sb-seed__ring {
+  border-color: rgba(200, 220, 240, 0.38);
+}
+.sb-seed--match {
+  border-color: rgba(220, 235, 245, 0.9);
+  box-shadow:
+    0 36px 100px rgba(0, 0, 0, 0.78),
+    0 0 0 1px rgba(220, 235, 245, 0.2) inset,
+    0 0 80px rgba(220, 235, 245, 0.14);
+}
+
+/* Pulse animation on concept activation — preserves translate(-50%,-50%) */
+@keyframes sb-seed-pulse {
+  0%   { transform: translate(-50%, -50%) scale(1); }
+  28%  { transform: translate(-50%, -50%) scale(1.05); }
+  62%  { transform: translate(-50%, -50%) scale(0.985); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+.sb-seed--pulse {
+  animation: sb-seed-pulse 0.52s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* -------- Seed tokens (active concept indicators inside seed) - */
+.sb-seed__tokens {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.sb-seed__token {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0.2rem 0.48rem;
+  background: rgba(22, 24, 30, 0.96);
+  border: 1px solid rgba(200, 220, 240, 0.45);
+  border-radius: 999px;
+  color: rgba(220, 230, 240, 0.98);
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: lowercase;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+.sb-seed__token:hover {
+  background: rgba(38, 40, 46, 1);
+  border-color: rgba(220, 235, 250, 0.9);
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+/* -------- Project bloom (emerges from seed center) ----------- */
+.sb-bloom {
+  position: absolute;
+  z-index: 16;
+  cursor: pointer;
+  pointer-events: auto;
+  transform-origin: center center;
+  filter: drop-shadow(0 28px 50px rgba(0, 0, 0, 0.6))
+    drop-shadow(0 0 24px rgba(200, 220, 240, 0.06));
+}
+.sb-bloom:hover {
+  filter: drop-shadow(0 32px 60px rgba(0, 0, 0, 0.7))
+    drop-shadow(0 0 32px rgba(200, 220, 240, 0.12));
+}
+.sb-bloom .snode--card {
+  box-shadow:
+    0 0 0 1px rgba(200, 220, 240, 0.1) inset;
+}
+
+/* ================================================================
+   VISUAL BROWSE — organized archive mode
+================================================================ */
+
+/* Grid mode gets the same scan-friendly background; Browse replaces it. */
+.sb-container--browse {
+  overflow-y: auto;
+  background-image:
+    linear-gradient(rgba(30, 30, 30, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 30, 30, 0.12) 1px, transparent 1px);
+  background-size: 240px 240px, 240px 240px;
+}
+
+.sb-browse {
+  position: relative;
+  min-height: 100vh;
+  padding: 100px 32px 64px;
+  max-width: 1200px;
+  margin: 0 auto;
+  z-index: 5;
+}
+
+.sb-browse__intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+.sb-browse__head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.sb-browse__kicker {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(130, 135, 145, 0.28);
+  align-self: flex-start;
+  padding-right: 14px;
+}
+.sb-browse__title {
+  margin: 0;
+  font-family: "Fraunces", "Source Serif 4", Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  font-weight: normal;
+  color: var(--color-text);
+}
+.sb-browse__sub {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+}
+
+/* View switcher (segmented pill) */
+.sb-browse__views {
+  position: relative;
+  display: inline-flex;
+  padding: 4px;
+  border: 1px solid rgba(90, 95, 105, 0.55);
+  background: rgba(20, 20, 24, 0.65);
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.sb-browse__view {
+  position: relative;
+  padding: 8px 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(160, 165, 175, 0.8);
+  border-radius: 999px;
+  transition: color 0.25s ease;
+  z-index: 1;
+}
+.sb-browse__view:hover { color: var(--color-text); }
+.sb-browse__view--active { color: var(--color-bg); }
+.sb-browse__view-indicator {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--color-text);
+  z-index: -1;
+}
+.sb-browse__view-label { position: relative; z-index: 1; }
+
+/* Group (label + grid) */
+.sb-browse__group {
+  margin-bottom: 44px;
+}
+.sb-browse__group-label {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding-bottom: 10px;
+  margin-bottom: 18px;
+  border-bottom: 1px dashed rgba(130, 135, 145, 0.22);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+.sb-browse__group-count {
+  font-size: 0.52rem;
+  color: var(--color-muted);
+  letter-spacing: 0.2em;
+}
+
+.sb-browse__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+/* Browse card wrapper (contains ProjectCard) */
+.sb-browse__card {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 320px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sb-browse__card:hover {
+  transform: translateY(-5px);
+}
+.sb-browse__card .snode--card {
+  cursor: pointer;
+}
+
+/* Timeline view */
+.sb-browse__timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sb-browse__row {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 22px;
+  align-items: center;
+  padding: 18px 22px;
+  background: rgba(20, 20, 24, 0.72);
+  border: 1px solid rgba(100, 100, 110, 0.4);
+  border-left: 2px solid var(--card-accent, #a0a0a0);
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-mono);
+  transition: background 0.25s, transform 0.25s, border-color 0.25s;
+  color: inherit;
+  width: 100%;
+}
+.sb-browse__row:hover {
+  background: rgba(30, 30, 36, 0.88);
+  transform: translateX(4px);
+  border-left-width: 3px;
+}
+.sb-browse__row-year {
+  font-family: "Fraunces", "Source Serif 4", Georgia, serif;
+  font-style: italic;
+  font-size: 1.5rem;
+  letter-spacing: 0.02em;
+}
+.sb-browse__row-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.sb-browse__row-title {
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: normal;
+  color: var(--color-text);
+}
+.sb-browse__row-blurb {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+.sb-browse__row-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
+.sb-browse__row-tags span {
+  font-size: 0.52rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(140, 145, 155, 0.7);
+  border: 1px solid rgba(90, 90, 100, 0.4);
+  padding: 2px 8px;
+}
+
+@media (max-width: 720px) {
+  .sb-browse { padding: 88px 20px 48px; }
+  .sb-browse__intro { flex-direction: column; align-items: flex-start; }
+  .sb-browse__row { grid-template-columns: 64px 1fr; gap: 16px; padding: 16px; }
+  .sb-browse__row-year { font-size: 1.1rem; }
+}
