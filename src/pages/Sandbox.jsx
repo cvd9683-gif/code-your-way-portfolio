@@ -6,6 +6,7 @@ import PreviewPanel from "../components/sandbox/PreviewPanel"
 import LayoutSwitcher from "../components/sandbox/LayoutSwitcher"
 import FreeformIntro from "../components/sandbox/FreeformIntro"
 import VisualBrowse from "../components/sandbox/VisualBrowse"
+import PatchFilter from "../components/sandbox/PatchFilter"
 import { computeTargets } from "../components/sandbox/layoutLogic"
 
 // ----------------------------------------------------------------
@@ -22,6 +23,7 @@ import { computeTargets } from "../components/sandbox/layoutLogic"
 const MODE_DESCRIPTIONS = {
   freeform: "open canvas · drag cards · pan background",
   browse: "three views · rearrange cards in place",
+  patch: "patch input nodes to filter the output",
 }
 
 const CARD_SPRING = { type: "spring", stiffness: 180, damping: 26, mass: 0.85 }
@@ -328,6 +330,14 @@ export default function Sandbox({ navigate }) {
       {/* ── Browse: organized view ── */}
       {mode === "browse" && (
         <VisualBrowse
+          projects={PROJECTS}
+          onProjectClick={(id) => setPreviewId(id)}
+        />
+      )}
+
+      {/* ── Patch: node-inspired filter ── */}
+      {mode === "patch" && (
+        <PatchFilter
           projects={PROJECTS}
           onProjectClick={(id) => setPreviewId(id)}
         />

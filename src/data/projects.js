@@ -1,15 +1,29 @@
 // ----------------------------------------------------------------
 // Shared project data for the sandbox.
-// One source of truth used by both modes (Freeform + Browse).
+// One source of truth used by all modes (Freeform + Browse + Patch).
 //
 // Per-project fields:
 //   id, route, title, blurb      — identity / copy
 //   tags                         — small display tags on the card
-//   keywords                     — tags used for filtering / grouping
+//   keywords                     — tags used by Browse mode for grouping
+//   patchTags                    — canonical filter labels used by Patch mode
+//                                  (must come from PATCH_FILTERS below)
 //   accent, bgGradient, bgShape  — visual theme
 //   freeform                     — scatter position & size in Freeform mode
 //   theme, type, year            — metadata surfaced in Visual Browse
 // ----------------------------------------------------------------
+
+// Canonical filter labels for Patch mode. Order here is the order
+// shown in the filter-node bank.
+export const PATCH_FILTERS = [
+  "Creative Coding",
+  "Music Tech",
+  "AI",
+  "Physical Computing",
+  "Web Experiments",
+  "Visual Systems",
+  "Playful Tools",
+]
 
 export const PROJECTS = [
   {
@@ -20,6 +34,7 @@ export const PROJECTS = [
       "Social cooking app where daily prompts and team feasts turn meals into shared rituals.",
     tags: ["Mobile", "Social", "Interaction"],
     keywords: ["interaction", "play", "emotion", "storytelling"],
+    patchTags: ["Playful Tools", "Web Experiments"],
     accent: "#c8a96e",
     bgGradient:
       "linear-gradient(140deg, #1e160a 0%, #2c1e0f 45%, #1a1208 100%)",
@@ -38,6 +53,7 @@ export const PROJECTS = [
       "Clinical workflow tool designed around the real rhythms of care teams.",
     tags: ["Health", "Systems", "UX"],
     keywords: ["health", "systems", "research", "interaction"],
+    patchTags: ["Visual Systems"],
     accent: "#6ec8b8",
     bgGradient:
       "linear-gradient(140deg, #08181a 0%, #0f2224 45%, #061416 100%)",
@@ -56,6 +72,7 @@ export const PROJECTS = [
       "Emotional intelligence layer for retail investing — think before you tap.",
     tags: ["Fintech", "Behavioral"],
     keywords: ["ai", "systems", "emotion", "research"],
+    patchTags: ["AI", "Visual Systems"],
     accent: "#c86e9a",
     bgGradient:
       "linear-gradient(140deg, #180e14 0%, #240e1c 45%, #120a10 100%)",
@@ -74,6 +91,7 @@ export const PROJECTS = [
       "Rethinking social payments for Gen Z — cleaner, clearer, more human.",
     tags: ["Fintech", "Mobile", "Social"],
     keywords: ["interaction", "visual", "systems", "storytelling"],
+    patchTags: ["Web Experiments", "Visual Systems"],
     accent: "#6e9ac8",
     bgGradient:
       "linear-gradient(140deg, #0a0e18 0%, #0e1426 45%, #080c18 100%)",
@@ -92,6 +110,7 @@ export const PROJECTS = [
       "Timing, easing, and the physics of attention in interface design.",
     tags: ["Animation", "Interaction"],
     keywords: ["interaction", "visual", "play", "speculative"],
+    patchTags: ["Creative Coding", "Visual Systems", "Playful Tools"],
     accent: "#a0a0a0",
     bgGradient:
       "linear-gradient(140deg, #0e0e0e 0%, #1c1c1c 50%, #0a0a0a 100%)",
@@ -109,6 +128,7 @@ export const PROJECTS = [
     blurb: "The pointer as performer — magnetic, weighted, theatrical.",
     tags: ["Interaction", "Cursor"],
     keywords: ["interaction", "play", "physical", "installation"],
+    patchTags: ["Creative Coding", "Physical Computing", "Playful Tools"],
     accent: "#b8a0d4",
     bgGradient:
       "linear-gradient(140deg, #100a18 0%, #1c1228 45%, #0c0810 100%)",

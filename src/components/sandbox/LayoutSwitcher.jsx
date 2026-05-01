@@ -10,6 +10,7 @@ import { motion } from "framer-motion"
 const MODES = [
   { id: "freeform", label: "Freeform" },
   { id: "browse", label: "Browse" },
+  { id: "patch", label: "Patch" },
 ]
 
 export default function LayoutSwitcher({ mode, onChange }) {
