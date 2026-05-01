@@ -1,337 +1,361 @@
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useMemo, useEffect, useRef, useCallback } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import { PROJECTS } from "../data/projects"
+import ProjectCard from "../components/sandbox/ProjectCard"
+import PreviewPanel from "../components/sandbox/PreviewPanel"
+import LayoutSwitcher from "../components/sandbox/LayoutSwitcher"
+import FreeformIntro from "../components/sandbox/FreeformIntro"
+import VisualBrowse from "../components/sandbox/VisualBrowse"
+import PatchFilter from "../components/sandbox/PatchFilter"
+import { computeTargets } from "../components/sandbox/layoutLogic"
 
-const WORLD_W = 4000
-const WORLD_H = 3000
+// ----------------------------------------------------------------
+// Sandbox — two modes, one shared project set.
+//
+//   freeform — open canvas. Drag cards, pan background, click a card
+//              to open the full-screen overlay preview.
+//   browse   — the organized archive. Switch between theme / type /
+//              year; cards rearrange in place.
+//
+// Preview behavior is identical in both modes (PreviewPanel overlay).
+// ----------------------------------------------------------------
 
-const EXPERIMENTS = [
-  {
-    id: "001",
-    title: "Motion Studies",
-    annotation: "Timing, easing, and the physics of attention",
-    detail: "An exploration of how motion communicates intent — the difference between instant and animated, snap and flow.",
-    tags: ["animation", "interaction"],
-    x: 1580, y: 1200,
-    rot: -2.5,
-  },
-  {
-    id: "002",
-    title: "Type as Structure",
-    annotation: "When letterforms become the layout",
-    detail: "Typography treated as spatial element rather than content — scale, weight, and contrast as compositional tools.",
-    tags: ["typography", "layout"],
-    x: 2260, y: 860,
-    rot: 1.2,
-  },
-  {
-    id: "003",
-    title: "Color Systems",
-    annotation: "Generative palettes from constrained rules",
-    detail: "Programmatic approaches to color that maintain aesthetic coherence while allowing variation and surprise.",
-    tags: ["color", "generative"],
-    x: 2780, y: 1400,
-    rot: -1.8,
-  },
-  {
-    id: "004",
-    title: "Interface Concepts",
-    annotation: "What if navigation felt like touch?",
-    detail: "Spatial, gesture-driven interfaces that borrow from the physical — drag, throw, catch, hold.",
-    tags: ["ux", "interaction"],
-    x: 1880, y: 1880,
-    rot: 2.0,
-  },
-  {
-    id: "005",
-    title: "Data Landscapes",
-    annotation: "Turning numbers into terrain",
-    detail: "Abstract visualization where the goal is intuition, not precision — emotional data display over analytical clarity.",
-    tags: ["data", "visual"],
-    x: 2520, y: 2060,
-    rot: -0.8,
-  },
-  {
-    id: "006",
-    title: "Cursor Work",
-    annotation: "The pointer as performer",
-    detail: "Experiments treating the cursor as an active design element — magnetic, weighted, theatrical.",
-    tags: ["interaction", "cursor"],
-    x: 1260, y: 1580,
-    rot: 1.8,
-  },
-  {
-    id: "007",
-    title: "Canvas Studies",
-    annotation: "Generative mark-making systems",
-    detail: "Canvas API explorations — noise fields, particle systems, and procedural drawing machines.",
-    tags: ["canvas", "generative"],
-    x: 2100, y: 1300,
-    rot: -3.2,
-  },
-]
-
-function fmtCoord(n) {
-  const sign = n >= 0 ? "+" : "−"
-  return `${sign}${Math.abs(n).toString().padStart(4, "0")}`
+const MODE_DESCRIPTIONS = {
+  freeform: "open canvas · drag cards · pan background",
+  browse: "three views · rearrange cards in place",
+  patch: "patch input nodes to filter the output",
 }
 
+const CARD_SPRING = { type: "spring", stiffness: 180, damping: 26, mass: 0.85 }
+const MIN_W = 180
+const MIN_H = 160
+const CLICK_THRESHOLD = 5
+
 export default function Sandbox({ navigate }) {
-  const containerRef = useRef(null)
-  const stateRef = useRef({
-    isDragging: false,
-    startX: 0,
-    startY: 0,
-    panX: 0,
-    panY: 0,
-    velX: 0,
-    velY: 0,
-    lastX: 0,
-    lastY: 0,
-    rafId: null,
-    momentum: false,
+  const [mode, setMode] = useState("freeform")
+  const [previewId, setPreviewId] = useState(null)
+
+  // Freeform persistent card state.
+  const [freeformOffsets, setFreeformOffsets] = useState({})
+  const [freeformSizes, setFreeformSizes] = useState(() => {
+    const m = {}
+    PROJECTS.forEach((p) => {
+      m[p.id] = { w: p.freeform.w, h: p.freeform.h }
+    })
+    return m
   })
 
-  const [pan, setPan] = useState({ x: 0, y: 0 })
-  const [hoveredId, setHoveredId] = useState(null)
-  const [initialized, setInitialized] = useState(false)
-  const [showHint, setShowHint] = useState(true)
-  const [coords, setCoords] = useState({ x: 0, y: 0 })
+  // Freeform resize
+  const resizeRef = useRef(null)
+  const [resizingId, setResizingId] = useState(null)
+
+  // Freeform canvas pan
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 })
+  const [isPanning, setIsPanning] = useState(false)
+  const panStartRef = useRef(null)
+
+  // Press-vs-drag detection for card preview
+  const pressRef = useRef(null)
+  const [isPressing, setIsPressing] = useState(false)
+
+  const [viewport, setViewport] = useState(() => ({
+    w: typeof window !== "undefined" ? window.innerWidth : 1440,
+    h: typeof window !== "undefined" ? window.innerHeight : 900,
+  }))
 
   useEffect(() => {
-    const vw = window.innerWidth
-    const vh = window.innerHeight
-    const initX = vw / 2 - WORLD_W / 2
-    const initY = vh / 2 - WORLD_H / 2
-    stateRef.current.panX = initX
-    stateRef.current.panY = initY
-    setPan({ x: initX, y: initY })
-
-    // Delay class apply so CSS transition fires
-    const initTimer = setTimeout(() => setInitialized(true), 60)
-    const hintTimer = setTimeout(() => setShowHint(false), 4200)
-    return () => {
-      clearTimeout(initTimer)
-      clearTimeout(hintTimer)
-    }
+    const onResize = () =>
+      setViewport({ w: window.innerWidth, h: window.innerHeight })
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
   }, [])
 
-  const updateCoords = useCallback((panX, panY) => {
-    const vw = window.innerWidth
-    const vh = window.innerHeight
-    setCoords({
-      x: Math.round(vw / 2 - panX - WORLD_W / 2),
-      y: Math.round(vh / 2 - panY - WORLD_H / 2),
+  // ── Freeform resize ─────────────────────────────────────────────────
+  useEffect(() => {
+    if (!resizingId) return
+    const onMove = (e) => {
+      const r = resizeRef.current
+      if (!r) return
+      const dx = e.clientX - r.startX
+      const dy = e.clientY - r.startY
+      setFreeformSizes((prev) => ({
+        ...prev,
+        [r.id]: {
+          w: Math.max(MIN_W, r.startW + dx),
+          h: Math.max(MIN_H, r.startH + dy),
+        },
+      }))
+    }
+    const onUp = () => {
+      resizeRef.current = null
+      setResizingId(null)
+    }
+    window.addEventListener("pointermove", onMove)
+    window.addEventListener("pointerup", onUp)
+    return () => {
+      window.removeEventListener("pointermove", onMove)
+      window.removeEventListener("pointerup", onUp)
+    }
+  }, [resizingId])
+
+  const startResize = useCallback(
+    (id, e) => {
+      e.stopPropagation()
+      const cur = freeformSizes[id] ?? { w: 280, h: 260 }
+      resizeRef.current = {
+        id,
+        startX: e.clientX,
+        startY: e.clientY,
+        startW: cur.w,
+        startH: cur.h,
+      }
+      setResizingId(id)
+    },
+    [freeformSizes],
+  )
+
+  // ── Freeform canvas pan ─────────────────────────────────────────────
+  useEffect(() => {
+    if (!isPanning) return
+    const onMove = (e) => {
+      const s = panStartRef.current
+      if (!s) return
+      setPanOffset({
+        x: s.baseX + (e.clientX - s.startX),
+        y: s.baseY + (e.clientY - s.startY),
+      })
+    }
+    const onUp = () => {
+      panStartRef.current = null
+      setIsPanning(false)
+    }
+    window.addEventListener("pointermove", onMove)
+    window.addEventListener("pointerup", onUp)
+    return () => {
+      window.removeEventListener("pointermove", onMove)
+      window.removeEventListener("pointerup", onUp)
+    }
+  }, [isPanning])
+
+  const startPan = useCallback(
+    (e) => {
+      if (mode !== "freeform") return
+      if (e.target !== e.currentTarget) return
+      panStartRef.current = {
+        startX: e.clientX,
+        startY: e.clientY,
+        baseX: panOffset.x,
+        baseY: panOffset.y,
+      }
+      setIsPanning(true)
+    },
+    [mode, panOffset],
+  )
+
+  // ── Click-vs-drag for freeform card preview ─────────────────────────
+  useEffect(() => {
+    if (!isPressing) return
+    const onMove = (e) => {
+      const s = pressRef.current
+      if (!s || s.dragged) return
+      const dx = Math.abs(e.clientX - s.x)
+      const dy = Math.abs(e.clientY - s.y)
+      if (dx > CLICK_THRESHOLD || dy > CLICK_THRESHOLD) s.dragged = true
+    }
+    const onUp = () => {
+      const s = pressRef.current
+      pressRef.current = null
+      setIsPressing(false)
+      if (!s) return
+      if (!s.dragged) setPreviewId(s.id)
+    }
+    window.addEventListener("pointermove", onMove)
+    window.addEventListener("pointerup", onUp)
+    return () => {
+      window.removeEventListener("pointermove", onMove)
+      window.removeEventListener("pointerup", onUp)
+    }
+  }, [isPressing])
+
+  const onCardPointerDown = useCallback((id, e) => {
+    pressRef.current = { id, x: e.clientX, y: e.clientY, dragged: false }
+    setIsPressing(true)
+  }, [])
+
+  const onCardDragStart = useCallback(() => {
+    const s = pressRef.current
+    if (s) s.dragged = true
+  }, [])
+
+  // ── Card targets (Freeform only) ────────────────────────────────────
+  const targets = useMemo(
+    () =>
+      computeTargets(mode, PROJECTS, viewport.w, viewport.h, {
+        freeformOffsets,
+        freeformSizes,
+      }),
+    [mode, viewport.w, viewport.h, freeformOffsets, freeformSizes],
+  )
+
+  // ── Mode change cleanup ────────────────────────────────────────────
+  const handleModeChange = (next) => {
+    setPreviewId(null)
+    setMode(next)
+  }
+
+  // ── Freeform drag commit ───────────────────────────────────────────
+  const commitFreeformDrag = useCallback((id, info) => {
+    setFreeformOffsets((prev) => {
+      const cur = prev[id] ?? { dx: 0, dy: 0 }
+      return {
+        ...prev,
+        [id]: { dx: cur.dx + info.offset.x, dy: cur.dy + info.offset.y },
+      }
     })
   }, [])
 
-  const animateMomentum = useCallback(() => {
-    const s = stateRef.current
-    if (!s.momentum) return
-    s.velX *= 0.92
-    s.velY *= 0.92
-    s.panX += s.velX
-    s.panY += s.velY
-    setPan({ x: s.panX, y: s.panY })
-    updateCoords(s.panX, s.panY)
-    if (Math.abs(s.velX) < 0.15 && Math.abs(s.velY) < 0.15) {
-      s.momentum = false
-      return
-    }
-    s.rafId = requestAnimationFrame(animateMomentum)
-  }, [updateCoords])
+  const wrapOffset = mode === "freeform" ? panOffset : { x: 0, y: 0 }
 
-  const stopDrag = useCallback(() => {
-    const s = stateRef.current
-    if (!s.isDragging) return
-    s.isDragging = false
-    if (containerRef.current) containerRef.current.style.cursor = ""
-    if (Math.abs(s.velX) > 0.4 || Math.abs(s.velY) > 0.4) {
-      s.momentum = true
-      s.rafId = requestAnimationFrame(animateMomentum)
-    }
-  }, [animateMomentum])
-
-  const onMouseDown = useCallback((e) => {
-    if (e.button !== 0) return
-    if (e.target.closest("button, a")) return
-    const s = stateRef.current
-    s.isDragging = true
-    s.momentum = false
-    if (s.rafId) { cancelAnimationFrame(s.rafId); s.rafId = null }
-    s.startX = e.clientX - s.panX
-    s.startY = e.clientY - s.panY
-    s.lastX = e.clientX
-    s.lastY = e.clientY
-    s.velX = 0
-    s.velY = 0
-    if (containerRef.current) containerRef.current.style.cursor = "grabbing"
-  }, [])
-
-  const onMouseMove = useCallback((e) => {
-    const s = stateRef.current
-    if (!s.isDragging) return
-    s.velX = e.clientX - s.lastX
-    s.velY = e.clientY - s.lastY
-    s.lastX = e.clientX
-    s.lastY = e.clientY
-    s.panX = e.clientX - s.startX
-    s.panY = e.clientY - s.startY
-    setPan({ x: s.panX, y: s.panY })
-    updateCoords(s.panX, s.panY)
-  }, [updateCoords])
-
-  // Touch support
+  // Escape dismiss for preview.
   useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-
-    const onTouchStart = (e) => {
-      const touch = e.touches[0]
-      const s = stateRef.current
-      s.isDragging = true
-      s.momentum = false
-      if (s.rafId) { cancelAnimationFrame(s.rafId); s.rafId = null }
-      s.startX = touch.clientX - s.panX
-      s.startY = touch.clientY - s.panY
-      s.lastX = touch.clientX
-      s.lastY = touch.clientY
-      s.velX = 0
-      s.velY = 0
+    if (!previewId) return
+    const onKey = (e) => {
+      if (e.key === "Escape") setPreviewId(null)
     }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [previewId])
 
-    const onTouchMove = (e) => {
-      e.preventDefault()
-      const touch = e.touches[0]
-      const s = stateRef.current
-      if (!s.isDragging) return
-      s.velX = touch.clientX - s.lastX
-      s.velY = touch.clientY - s.lastY
-      s.lastX = touch.clientX
-      s.lastY = touch.clientY
-      s.panX = touch.clientX - s.startX
-      s.panY = touch.clientY - s.startY
-      setPan({ x: s.panX, y: s.panY })
-      updateCoords(s.panX, s.panY)
-    }
-
-    const onTouchEnd = () => {
-      const s = stateRef.current
-      s.isDragging = false
-      if (Math.abs(s.velX) > 0.4 || Math.abs(s.velY) > 0.4) {
-        s.momentum = true
-        s.rafId = requestAnimationFrame(animateMomentum)
-      }
-    }
-
-    el.addEventListener("touchstart", onTouchStart, { passive: false })
-    el.addEventListener("touchmove", onTouchMove, { passive: false })
-    el.addEventListener("touchend", onTouchEnd)
-    return () => {
-      el.removeEventListener("touchstart", onTouchStart)
-      el.removeEventListener("touchmove", onTouchMove)
-      el.removeEventListener("touchend", onTouchEnd)
-    }
-  }, [animateMomentum, updateCoords])
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      const s = stateRef.current
-      s.momentum = false
-      if (s.rafId) cancelAnimationFrame(s.rafId)
-      if (containerRef.current) containerRef.current.style.cursor = ""
-    }
-  }, [])
+  const previewProject = PROJECTS.find((p) => p.id === previewId)
 
   return (
     <div
-      ref={containerRef}
-      className="sandbox-container"
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={stopDrag}
-      onMouseLeave={stopDrag}
+      className={`sb-container sb-container--${mode}${
+        mode === "freeform" && isPanning ? " sb-container--panning" : ""
+      }`}
+      onPointerDown={startPan}
     >
-      {/* HUD — top bar */}
+      {/* ── Top HUD ── */}
       <div className="sandbox-hud-top">
         <button className="sandbox-back" onClick={() => navigate("home")}>
           ← exit
         </button>
-        <span className="sandbox-label-hud">SANDBOX</span>
-        <span className="sandbox-coords">
-          X&thinsp;{fmtCoord(coords.x)}&emsp;Y&thinsp;{fmtCoord(coords.y)}
-        </span>
+        <LayoutSwitcher mode={mode} onChange={handleModeChange} />
+        <span className="sb-mode-desc">{MODE_DESCRIPTIONS[mode]}</span>
       </div>
 
-      {/* Bottom count */}
+      {/* ── Bottom HUD ── */}
       <div className="sandbox-hud-bottom">
         <span className="sandbox-count">
-          {String(EXPERIMENTS.length).padStart(2, "0")} experiments in field
+          {String(PROJECTS.length).padStart(2, "0")} projects
         </span>
       </div>
 
-      {/* Drag hint */}
-      <div className={`sandbox-hint${showHint ? "" : " sandbox-hint--hidden"}`}>
-        drag to explore
-      </div>
+      {/* ── Freeform: shared card stage ── */}
+      {mode === "freeform" && (
+        <div className="sb-stage">
+          <motion.div
+            className="sb-pan-wrap"
+            animate={{ x: wrapOffset.x, y: wrapOffset.y }}
+            transition={
+              isPanning
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 260, damping: 30 }
+            }
+          >
+            <AnimatePresence>
+              <FreeformIntro viewport={viewport} />
+            </AnimatePresence>
 
-      {/* The pannable world */}
-      <div
-        className={`sandbox-world${initialized ? " sandbox-world--visible" : ""}`}
-        style={{ transform: `translate(${pan.x}px, ${pan.y}px)` }}
-      >
-        {/* World center crosshair lines */}
-        <div
-          className="sandbox-axis sandbox-axis--h"
-          style={{ top: WORLD_H / 2 }}
-        />
-        <div
-          className="sandbox-axis sandbox-axis--v"
-          style={{ left: WORLD_W / 2 }}
-        />
-
-        {/* Origin dot */}
-        <div
-          className="sandbox-origin-dot"
-          style={{ left: WORLD_W / 2, top: WORLD_H / 2 }}
-        />
-
-        {/* Large faint field label */}
-        <div
-          className="sandbox-field-label"
-          style={{ left: WORLD_W / 2, top: WORLD_H / 2 }}
-        >
-          FIELD
+            {PROJECTS.map((p, i) => {
+              const t = targets[p.id]
+              if (!t) return null
+              const isResizing = resizingId === p.id
+              return (
+                <motion.div
+                  key={p.id}
+                  className="sb-card-wrap"
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    pointerEvents: "auto",
+                  }}
+                  drag={!isResizing}
+                  dragMomentum={false}
+                  dragElastic={0}
+                  onPointerDown={(e) => onCardPointerDown(p.id, e)}
+                  onDragStart={onCardDragStart}
+                  onDragEnd={(e, info) => commitFreeformDrag(p.id, info)}
+                  initial={{
+                    x: t.x,
+                    y: t.y,
+                    width: t.w,
+                    height: t.h,
+                    rotate: t.rot,
+                    scale: 0.94,
+                    opacity: 0,
+                    zIndex: t.z,
+                  }}
+                  animate={{
+                    x: t.x,
+                    y: t.y,
+                    width: t.w,
+                    height: t.h,
+                    rotate: t.rot,
+                    scale: t.scale,
+                    opacity: t.opacity,
+                    zIndex: t.z,
+                  }}
+                  transition={
+                    isResizing
+                      ? { duration: 0 }
+                      : { ...CARD_SPRING, delay: i * 0.03 }
+                  }
+                >
+                  <ProjectCard data={p} state="normal" showHint="click to preview" />
+                  <div
+                    className="sb-resize"
+                    onPointerDown={(e) => startResize(p.id, e)}
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label="Resize card"
+                  />
+                </motion.div>
+              )
+            })}
+          </motion.div>
         </div>
+      )}
 
-        {/* Experiment fragments */}
-        {EXPERIMENTS.map((exp) => {
-          const active = hoveredId === exp.id
-          return (
-            <div
-              key={exp.id}
-              className={`sandbox-fragment${active ? " sandbox-fragment--active" : ""}`}
-              style={{
-                left: exp.x,
-                top: exp.y,
-                transform: `rotate(${exp.rot}deg)`,
-              }}
-              onMouseEnter={() => {
-                if (!stateRef.current.isDragging) setHoveredId(exp.id)
-              }}
-              onMouseLeave={() => setHoveredId(null)}
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              <span className="sandbox-frag-id">{exp.id}</span>
-              <h3 className="sandbox-frag-title">{exp.title}</h3>
-              <p className="sandbox-frag-annotation">{exp.annotation}</p>
-              <div className="sandbox-frag-tags">
-                {exp.tags.map((t) => <span key={t}>{t}</span>)}
-              </div>
-              <p className="sandbox-frag-detail">{exp.detail}</p>
-            </div>
-          )
-        })}
-      </div>
+      {/* ── Browse: organized view ── */}
+      {mode === "browse" && (
+        <VisualBrowse
+          projects={PROJECTS}
+          onProjectClick={(id) => setPreviewId(id)}
+        />
+      )}
+
+      {/* ── Patch: node-inspired filter ── */}
+      {mode === "patch" && (
+        <PatchFilter
+          projects={PROJECTS}
+          onProjectClick={(id) => setPreviewId(id)}
+        />
+      )}
+
+      {/* ── Shared preview overlay ── */}
+      <AnimatePresence>
+        {previewProject && (
+          <PreviewPanel
+            project={previewProject}
+            onClose={() => setPreviewId(null)}
+            onMore={(route) => {
+              setPreviewId(null)
+              navigate(route)
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
